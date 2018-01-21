@@ -24,6 +24,9 @@ class_commons = nil
 common = nil
 no_game_code = nil
 
+-- fonts
+font_HelvetiPixel = nil
+
 -- Global Functions inspired by picolove https://github.com/gamax92/picolove/blob/master/api.lua
 function all(a)
 	if a==nil or #a==0 then
@@ -130,6 +133,8 @@ function love.load(arg)
     -- This color will used for fullscreen letterboxing when content doesn't fit exactly. (Optional)
     :setBackgroundColor(64, 64, 64)
 
+
+	font_HelvetiPixel = love.graphics.newFont("fonts/HelvetiPixel.ttf", 16)
 end
 
 -- Logic

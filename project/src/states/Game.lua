@@ -23,6 +23,7 @@ end
 local function drawFn()
     -- <Your drawing logic goes here.>
     -- love.graphics.draw(padLeft,a,2)
+    love.graphics.setFont(font_HelvetiPixel)
     love.graphics.print(love.timer.getFPS(), 0, 0)
   end
 
