@@ -11,7 +11,7 @@ osxapp=/mnt/c/Users/thars/Downloads/love-0.10.2-macosx-x64/love.app/
 
 game=GAMENAME
 sources=main.lua src/**/*.lua libs/**/*.lua **/*.lua *.lua
-res=img/*.* music/*.* sfx/*.*
+res=img/*.* music/*.* sfx/*.* fonts/*.*
 
 .PHONY : run test love clean win
 
