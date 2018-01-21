@@ -25,8 +25,14 @@ common = nil
 no_game_code = nil
 
 -- fonts
+font_16bfZX = nil
 font_HelvetiPixel = nil
+font_MicroStyle = nil
+font_Minimal4 = nil
+font_PixelMordred = nil
+font_SullyVerge = nil
 font_TimesNewPixel = nil
+font_Verdana2 = nil
 
 -- Global Functions inspired by picolove https://github.com/gamax92/picolove/blob/master/api.lua
 function all(a)
@@ -135,8 +141,14 @@ function love.load(arg)
     :setBackgroundColor(64, 64, 64)
 
 
+	font_16bfZX = love.graphics.newFont("fonts/16bfZX.ttf", 16)
 	font_HelvetiPixel = love.graphics.newFont("fonts/HelvetiPixel.ttf", 16)
+	font_MicroStyle = love.graphics.newFont("fonts/MicroStyle.ttf", 16)
+	font_Minimal4 = love.graphics.newFont("fonts/Minimal4.ttf", 16)
+	font_PixelMordred = love.graphics.newFont("fonts/PixelMordred.ttf", 16)
+	font_SullyVerge = love.graphics.newFont("fonts/SullyVerge.ttf", 16)
 	font_TimesNewPixel = love.graphics.newFont("fonts/TimesNewPixel.ttf", 16)
+	font_Verdana2 = love.graphics.newFont("fonts/Verdana2.ttf", 16)
 end
 
 -- Logic
