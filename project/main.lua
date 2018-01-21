@@ -6,7 +6,7 @@
 
 -- Set Library Folders
 _LIBRARYPATH = "libs"
-_LIBRARYPATH = _LIBRARYPATH .. "."
+_LIBRARYPATH = _LIBRARYPATH .. "/"
 
 requireLibrary = function(name)
 	return require(_LIBRARYPATH..name)
@@ -15,7 +15,9 @@ end
 -- Get the libs manually
 local strict    = requireLibrary("strict")
 local slam      = requireLibrary("slam")
-local Gamestate = requireLibrary("hump.gamestate")
+local Terebi    = requireLibrary("terebi")
+local Gamestate = requireLibrary("hump/gamestate")
+local screen
 
 -- Declare Global Variables
 class_commons = nil
@@ -119,6 +121,15 @@ function love.load(arg)
 	recursiveRequire("src")
 	Gamestate.registerEvents()
 	Gamestate.switch(Game)
+
+  -- Set nearest-neighbour scaling. Calling this is optional.
+  Terebi.initializeLoveDefaults()
+
+  -- Parameters: game width, game height, starting scale factor
+  screen = Terebi.newScreen(320, 180, 3)
+    -- This color will used for fullscreen letterboxing when content doesn't fit exactly. (Optional)
+    :setBackgroundColor(64, 64, 64)
+
 end
 
 -- Logic
@@ -126,14 +137,28 @@ function love.update( dt )
 	
 end
 
+
+local function drawFn()
+  -- <Your drawing logic goes here.>
+  -- love.graphics.draw(padLeft,a,2)
+end
+
+
 -- Rendering
 function love.draw()
+  screen:draw(drawFn) -- Additional arguments will be passed to drawFn.
 
 end
 
 -- Input
 function love.keypressed()
-	
+  if     key == 'i' then
+    screen:increaseScale()
+  elseif key == 'd' then
+    screen:decreaseScale()
+  elseif key == 'f' then
+    screen:toggleFullscreen()
+  end	
 end
 
 function love.keyreleased()
