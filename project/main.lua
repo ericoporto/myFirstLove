@@ -26,6 +26,7 @@ no_game_code = nil
 
 -- fonts
 font_HelvetiPixel = nil
+font_TimesNewPixel = nil
 
 -- Global Functions inspired by picolove https://github.com/gamax92/picolove/blob/master/api.lua
 function all(a)
@@ -135,6 +136,7 @@ function love.load(arg)
 
 
 	font_HelvetiPixel = love.graphics.newFont("fonts/HelvetiPixel.ttf", 16)
+	font_TimesNewPixel = love.graphics.newFont("fonts/TimesNewPixel.ttf", 16)
 end
 
 -- Logic
