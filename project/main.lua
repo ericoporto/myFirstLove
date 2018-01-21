@@ -17,9 +17,9 @@ local strict    = requireLibrary("strict")
 local slam      = requireLibrary("slam")
 local Terebi    = requireLibrary("terebi")
 local Gamestate = requireLibrary("hump/gamestate")
-local screen
 
 -- Declare Global Variables
+screen = nil
 class_commons = nil
 common = nil
 no_game_code = nil
@@ -138,20 +138,14 @@ function love.update( dt )
 end
 
 
-local function drawFn()
-  -- <Your drawing logic goes here.>
-  -- love.graphics.draw(padLeft,a,2)
-end
 
 
 -- Rendering
 function love.draw()
-  screen:draw(drawFn) -- Additional arguments will be passed to drawFn.
-
 end
 
 -- Input
-function love.keypressed()
+function love.keypressed(key)
   if     key == 'i' then
     screen:increaseScale()
   elseif key == 'd' then

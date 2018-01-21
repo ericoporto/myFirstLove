@@ -19,6 +19,13 @@ function Game:update(dt)
    
 end
 
-function Game:draw()
+
+local function drawFn()
+    -- <Your drawing logic goes here.>
+    -- love.graphics.draw(padLeft,a,2)
     love.graphics.print(love.timer.getFPS(), 0, 0)
+  end
+
+function Game:draw()
+    screen:draw(drawFn) -- Additional arguments will be passed to drawFn.
 end
