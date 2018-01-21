@@ -33,7 +33,7 @@ local function drawFn()
     cnv:renderTo(function()
         love.graphics.setColor( 255, 255, 255, 255 )
         love.graphics.setFont(font_Verdana2)
-        love.graphics.print("teste de texto\n a\nb", 80+20*b, 25)
+        love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)
         love.graphics.rectangle("fill", 30+12*b, 30+15*b, 16, 32 )
     end)
 
