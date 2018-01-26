@@ -6,6 +6,7 @@ local Gamestate     = requireLibrary("hump.gamestate")
 local timer         = requireLibrary("hump.timer")
 local Vector        = requireLibrary("hump.vector")
 local tween         = timer.tween
+local map
 local a
 local b
 local strength
@@ -15,6 +16,7 @@ Game = Gamestate.new()
 
 local stuff = {}
 function Game:enter()
+    map = sti("map/test.lua")
     a=0
 	b=0
 end
@@ -22,6 +24,7 @@ end
 function Game:update(dt)
    a=a+1
    b=math.cos(a/32)
+   map:update(dt)
 end
 
 
@@ -31,6 +34,7 @@ local function drawFn()
     love.graphics.setShader()
     cnv = love.graphics.newCanvas(320,180)
     cnv:renderTo(function()
+        map:draw()
         love.graphics.setColor( 255, 255, 255, 255 )
         love.graphics.setFont(font_Verdana2)
         love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)

@@ -17,6 +17,7 @@ local strict    = requireLibrary("strict")
 local slam      = requireLibrary("slam")
 local Terebi    = requireLibrary("terebi")
 local Gamestate = requireLibrary("hump/gamestate")
+sti = requireLibrary("sti")
 
 -- Declare Global Variables
 screen = nil
