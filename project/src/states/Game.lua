@@ -8,6 +8,7 @@ local Vector        = requireLibrary("hump.vector")
 local Camera        = requireLibrary("hump.camera")
 local anim8         = requireLibrary("anim8")
 local tween         = timer.tween
+local Character     = require 'src/entities/Character'
 local map
 local a
 local b
@@ -25,9 +26,7 @@ local img_chara_agent
 local player
 
 function Game:enter()
-  img_chara_player = love.graphics.newImage('img/chara_player.png')
   img_chara_agent = love.graphics.newImage('img/chara_agent.png')
-  local g_chara_player = anim8.newGrid(24, 24, img_chara_player:getWidth(), img_chara_player:getHeight())
   local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
 
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
@@ -55,40 +54,7 @@ function Game:enter()
       end
   end
 
-  player= {
-    pxw = 24,
-    pxh = 24,
-    pos = {
-      x = 64,
-      y = 128
-    },
-    sprite = img_chara_player,
-    animation_grid = g_chara_player,
-    current_direction = 'down',
-    animations= { 
-      walk = {
-        down = anim8.newAnimation(g_chara_player('1-4',1), 0.1),
-        down_right = anim8.newAnimation(g_chara_player('1-4',2), 0.1),
-        right = anim8.newAnimation(g_chara_player('1-4',3), 0.1),
-        up_right = anim8.newAnimation(g_chara_player('1-4',4), 0.1),
-        up = anim8.newAnimation(g_chara_player('1-4',5), 0.1),
-        up_left = anim8.newAnimation(g_chara_player('1-4',6), 0.1),
-        left = anim8.newAnimation(g_chara_player('1-4',7), 0.1),
-        down_left = anim8.newAnimation(g_chara_player('1-4',8), 0.1)
-      },
-      idle = {
-        down = anim8.newAnimation(g_chara_player(2,1), 0.1),
-        down_right = anim8.newAnimation(g_chara_player(2,2), 0.1),
-        right = anim8.newAnimation(g_chara_player(2,3), 0.1),
-        up_right = anim8.newAnimation(g_chara_player(2,4), 0.1),
-        up = anim8.newAnimation(g_chara_player(2,5), 0.1),
-        up_left = anim8.newAnimation(g_chara_player(2,6), 0.1),
-        left = anim8.newAnimation(g_chara_player(2,7), 0.1),
-        down_left = anim8.newAnimation(g_chara_player(2,8), 0.1)
-      }
-    },
-    current_animation = nil
-  }
+  player = Character.init('player','img/chara_player.png',64,128)
 
   player.current_animation = player.animations.walk
 

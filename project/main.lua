@@ -21,6 +21,9 @@ local Gamestate = requireLibrary("hump/gamestate")
 -- the library for Tiled map
 sti = requireLibrary("sti")
 
+-- adding Object to lua
+Object = requireLibrary("classic")
+
 -- Declare Global Variables
 screen = nil
 class_commons = nil
