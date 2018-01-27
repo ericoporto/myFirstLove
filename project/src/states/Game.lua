@@ -6,6 +6,7 @@ local Gamestate     = requireLibrary("hump.gamestate")
 local timer         = requireLibrary("hump.timer")
 local Vector        = requireLibrary("hump.vector")
 local Camera        = requireLibrary("hump.camera")
+local anim8         = requireLibrary("anim8")
 local tween         = timer.tween
 local map
 local a
@@ -74,7 +75,7 @@ local function drawFn()
     -- <Your drawing logic goes here.>
     -- love.graphics.draw(padLeft,a,2)
     love.graphics.setShader()
-    cnv = love.graphics.newCanvas(320,180)
+    cnv = love.graphics.newCanvas(640,360)
     cnv:renderTo(function()
 
 

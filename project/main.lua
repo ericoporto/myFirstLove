@@ -157,7 +157,7 @@ function love.load(arg)
   Terebi.initializeLoveDefaults()
 
   -- Parameters: game width, game height, starting scale factor
-  screen = Terebi.newScreen(320, 180, 3)
+  screen = Terebi.newScreen(640,360, 1)
     -- This color will used for fullscreen letterboxing when content doesn't fit exactly. (Optional)
     :setBackgroundColor(64, 64, 64)
 
