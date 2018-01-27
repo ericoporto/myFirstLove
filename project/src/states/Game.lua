@@ -16,15 +16,17 @@ Game = Gamestate.new()
 
 local stuff = {}
 function Game:enter()
-    map = sti("map/test.lua")
-    a=0
-	b=0
+  map = sti("map/test.lua")
+  a=0
+  b=0
 end
 
 function Game:update(dt)
-   a=a+1
-   b=math.cos(a/32)
-   map:update(dt)
+  if keys_pressed['up'] then
+    a=a+1
+    b=math.cos(a/32)
+    map:update(dt)
+  end
 end
 
 

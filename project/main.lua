@@ -43,6 +43,17 @@ shader_screen = nil
 
 -- the keyboard and joystick interface
 keys = {}
+keys_pressed = {}
+keys_previousGamepad = {}
+
+local p1joystick = nil
+
+-- adding a function to remove keys from tables
+function table.removekey(table, key)
+	local element = table[key]
+	table[key] = nil
+	return element
+end
 
 -- Global Functions inspired by picolove https://github.com/gamax92/picolove/blob/master/api.lua
 function all(a)
@@ -160,6 +171,18 @@ function love.load(arg)
 	font_TimesNewPixel = love.graphics.newFont("fonts/TimesNewPixel.ttf", 16)
 	font_Verdana2 = love.graphics.newFont("fonts/Verdana2.ttf", 16)
 
+	-- adding a general map of keys
+	keys = {
+		up = false,
+		down = false,
+		right = false,
+		left = false,
+		buttona = false,
+		buttonb = false,
+		buttonx = false,
+		buttony = false
+	}
+
 	--shader test from rxi
 	shader_screen = love.graphics.newShader[[
 		extern vec2 abberationVector;
@@ -176,7 +199,62 @@ end
 
 -- Logic
 function love.update( dt )
-	
+	if p1joystick ~= nil then
+		-- getGamepadAxis returns a value between -1 and 1.
+		-- It returns 0 when it is at rest
+
+		if     p1joystick:getGamepadAxis("leftx")<-0.2 then
+			if keys_previousGamepad['left']==false then
+				keys_pressed['left'] = true
+				keys_previousGamepad['left'] = true
+			end
+		else
+			if keys_previousGamepad['left']==true then
+				keys_pressed['left'] = nil
+				keys_previousGamepad['left'] = false
+			end
+		end
+
+
+		if     p1joystick:getGamepadAxis("leftx")>0.2 then
+			if keys_previousGamepad['right']==false then
+				keys_pressed['right'] = true
+				keys_previousGamepad['right'] = true
+			end
+		else
+			if keys_previousGamepad['right']==true then
+				keys_pressed['right'] = nil
+				keys_previousGamepad['right'] = false
+			end
+		end
+
+
+		if     p1joystick:getGamepadAxis("lefty")<-0.2 then
+			if keys_previousGamepad['down']==false then
+				keys_pressed['down'] = true
+				keys_previousGamepad['down'] = true
+			end
+		else
+			if keys_previousGamepad['down']==true then
+				keys_pressed['down'] = nil
+				keys_previousGamepad['down'] = false
+			end
+		end
+
+
+		if     p1joystick:getGamepadAxis("lefty")>0.2 then
+			if keys_previousGamepad['up']==false then
+				keys_pressed['up'] = true
+				keys_previousGamepad['up'] = true
+			end
+		else
+			if keys_previousGamepad['up']==true then
+				keys_pressed['up'] = nil
+				keys_previousGamepad['up'] = false
+			end
+		end
+
+	end
 end
 
 
@@ -196,11 +274,50 @@ function love.keypressed(key)
     screen:toggleFullscreen()
 	end	
 	
+	if     key == 'up' or key == 'w' then
+		keys_pressed['up'] = true
+	elseif key == 'down' or key == 's' then
+		keys_pressed['down'] = true
+	elseif key == 'left' or key == 'a' then
+		keys_pressed['left'] = true
+	elseif key == 'right' or key == 'd' then
+		keys_pressed['right'] = true
+	end
+
+	if     key == 'i' then
+		keys_pressed['buttonx'] = true
+	elseif key == 'k' then
+		keys_pressed['buttona'] = true
+	elseif key == 'j' then
+		keys_pressed['buttony'] = true
+	elseif key == 'l' then
+		keys_pressed['buttonb'] = true
+	end
+
 
 end
 
-function love.keyreleased()
-	
+function love.keyreleased(key)
+	if     key == 'up' or key == 'w' then
+		keys_pressed['up'] = nil
+	elseif key == 'down' or key == 's' then
+		keys_pressed['down'] = nil
+	elseif key == 'left' or key == 'a' then
+		keys_pressed['left'] = nil
+	elseif key == 'right' or key == 'd' then
+		keys_pressed['right'] = nil
+	end	
+
+	if     key == 'i' then
+		keys_pressed['buttonx'] = nil
+	elseif key == 'k' then
+		keys_pressed['buttona'] = nil
+	elseif key == 'j' then
+		keys_pressed['buttony'] = nil
+	elseif key == 'l' then
+		keys_pressed['buttonb'] = nil
+	end
+
 end
 
 function love.mousepressed()
@@ -211,11 +328,16 @@ function love.mousereleased()
 	
 end
 
-function love.joystickpressed()
-	
+function love.joystickadded(joystick)
+	p1joystick = joystick
 end
 
-function love.joystickreleased()
+function love.joystickpressed(joystick, btn)
+
+	print(btn)
+end
+
+function love.joystickreleased(joystick, btn)
 	
 end
 
