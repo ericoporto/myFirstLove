@@ -162,7 +162,7 @@
   <object id="63" gid="907" x="201.75" y="134.75" width="192" height="192"/>
   <object id="64" gid="906" x="234.333" y="125.667" width="192" height="192"/>
  </objectgroup>
- <objectgroup name="objLayer">
+ <objectgroup name="objLayer" visible="0">
   <object id="27" name="triggerDialog" gid="219" x="159.333" y="433.333" width="16" height="16">
    <properties>
     <property name="id" value="1"/>

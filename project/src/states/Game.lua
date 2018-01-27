@@ -27,6 +27,8 @@ local player
 local last_level
 
 local list_triggers = {}
+local list_enemySpawner = {}
+local sprite_list = {}
 
 function setLevel(n)
   if last_level==1 then 
@@ -35,7 +37,7 @@ function setLevel(n)
 
   if n==1 then
     map = sti("map/level1.lua", { "box2d" })
-
+    sprite_list = {}
     -- Create new dynamic data layer called "Sprites" as the nth layer
     local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
     -- Draw player
@@ -46,7 +48,9 @@ function setLevel(n)
       -- love.graphics.setPointSize(8)
       -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
   
-      player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x-player.pxw/2,player.pos.y-player.pxh/1.1)
+      for _,spr in pairs(sprite_list) do
+        spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
+      end
   
     end
   
@@ -67,7 +71,16 @@ function setLevel(n)
         end
     end
 
+
+    -- Get triggers object
+    for k, object in pairs(map.objects) do
+      if object.name == "ennemySpawner" then
+        table.insert(list_enemySpawner,object)
+        end
+    end
+
     player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
+    table.insert(sprite_list,player)
   
     player.current_animation = player.animations.walk
   
@@ -142,15 +155,16 @@ function Game:update(dt)
 
   local dx = player.pos.x - camera.x
   local dy = player.pos.y - camera.y
-  player.current_animation[player.current_direction]:update(dt)
+
+  for _,spr in pairs(sprite_list) do
+    spr.current_animation[spr.current_direction]:update(dt)
+  end
 
   map:update(dt)
   camera:move(dx/2, dy/2)
 
 
   for k, object in pairs(list_triggers) do
-    print(k)
-
     if object ~= nil then
 
       if object.x >= player.pos.x - player.pxw/2 and
@@ -158,6 +172,14 @@ function Game:update(dt)
       object.y >= player.pos.y - player.pxh/2 and
       object.y <= player.pos.y + player.pxh/2 then
       
+        if object.properties['spawnEnnemy'] ~= nil then
+          print(object.properties.spawnEnnemy)
+          local enemy = Character.init('enemy','img/chara_agent.png',player.pos.x,player.pos.y)
+          enemy.current_direction = 'down'
+          table.insert(sprite_list,enemy)
+          object = nil
+          list_triggers[k]=nil
+        end
       print('test')
         break
       end
