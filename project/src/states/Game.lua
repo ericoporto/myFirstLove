@@ -75,12 +75,12 @@ local function drawFn()
     -- <Your drawing logic goes here.>
     -- love.graphics.draw(padLeft,a,2)
     love.graphics.setShader()
-    cnv = love.graphics.newCanvas(640,360)
+    cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
     cnv:renderTo(function()
 
 
-        local tx = camera.x - love.graphics.getWidth() / 2
-        local ty = camera.y - love.graphics.getHeight() / 2
+        local tx = camera.x - GAME_WIDTH / 2
+        local ty = camera.y - GAME_HEIGHT / 2
     
         if tx < 0 then 
             tx = 0 
@@ -88,11 +88,11 @@ local function drawFn()
         if ty < 0 then 
             ty = 0 
         end
-        --  if tx > map.width  * map.tilewidth  - love.graphics.getWidth()  then
-        --      tx = map.width  * map.tilewidth  - love.graphics.getWidth()  
-        --  end
-        if ty > map.height * map.tileheight - love.graphics.getHeight() then
-            ty = map.height * map.tileheight - love.graphics.getHeight()
+        if tx > map.width  * map.tilewidth  - GAME_WIDTH  then
+            tx = map.width  * map.tilewidth  - GAME_WIDTH 
+        end
+        if ty > map.height * map.tileheight - GAME_HEIGHT then
+            ty = map.height * map.tileheight - GAME_HEIGHT
         end
     
         tx = math.floor(tx)
