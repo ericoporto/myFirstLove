@@ -64,7 +64,6 @@ function setLevel(n)
     for k, object in pairs(map.objects) do
       if object.properties['type'] == "trigger" then
         table.insert(list_triggers,object)
-          break
         end
     end
 
@@ -148,8 +147,13 @@ function Game:update(dt)
   map:update(dt)
   camera:move(dx/2, dy/2)
 
+
   for k, object in pairs(list_triggers) do
-    if object.x >= player.pos.x - player.pxw/2 and
+    print(k)
+
+    if object ~= nil then
+
+      if object.x >= player.pos.x - player.pxw/2 and
       object.x <= player.pos.x + player.pxw/2 and 
       object.y >= player.pos.y - player.pxh/2 and
       object.y <= player.pos.y + player.pxh/2 then
@@ -157,9 +161,11 @@ function Game:update(dt)
       print('test')
         break
       end
+    end
+
   end
 
-  if player.pos.x>240 then
+  if player.pos.x>400 then
     setLevel(1)
   end
 
