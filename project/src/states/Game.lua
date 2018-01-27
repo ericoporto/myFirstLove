@@ -24,46 +24,61 @@ local stuff = {}
 local img_chara_player
 local img_chara_agent
 local player
+local last_level
+
+
+function setLevel(n)
+  if last_level==1 then 
+    Music.theme:stop()
+  end
+
+  if n==1 then
+    map = sti("map/level1.lua")
+
+    -- Create new dynamic data layer called "Sprites" as the nth layer
+    local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
+    -- Draw player
+    layerSprites.draw = function(self)
+  
+      -- Temporarily draw a point at our location so we know
+      -- that our sprite is offset properly
+      -- love.graphics.setPointSize(8)
+      -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
+  
+      player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x-player.pxw/2,player.pos.y-player.pxh/1.1)
+  
+    end
+  
+    local spawn_point
+    -- Get player spawn object
+    for k, object in pairs(map.objects) do
+      if object.name == "Player" then
+        spawn_point = object
+          break
+        end
+    end
+  
+    player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
+  
+    player.current_animation = player.animations.walk
+  
+    camera = Camera(player.pos.x, player.pos.y)
+    a=0
+    b=0
+  
+    Music.theme:play()
+  end
+
+  last_level = n
+end
 
 function Game:enter()
   img_chara_agent = love.graphics.newImage('img/chara_agent.png')
   local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
 
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
-  map = sti("map/level1.lua")
 
-  -- Create new dynamic data layer called "Sprites" as the nth layer
-  local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
-  -- Draw player
-  layerSprites.draw = function(self)
-
-    -- Temporarily draw a point at our location so we know
-    -- that our sprite is offset properly
-    -- love.graphics.setPointSize(8)
-    -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
-
-    player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x-player.pxw/2,player.pos.y-player.pxh/1.1)
-
-  end
-
-  local spawn_point
-  -- Get player spawn object
-  for k, object in pairs(map.objects) do
-    if object.name == "Player" then
-      spawn_point = object
-        break
-      end
-  end
-
-  player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
-
-  player.current_animation = player.animations.walk
-
-  camera = Camera(player.pos.x, player.pos.y)
-  a=0
-  b=0
-
-  Music.theme:play()
+  setLevel(1)
 end
 
 function Game:update(dt)
@@ -122,6 +137,10 @@ function Game:update(dt)
 
   map:update(dt)
   camera:move(dx/2, dy/2)
+
+  if player.pos.x>240 then
+    setLevel(1)
+  end
 
 end
 
