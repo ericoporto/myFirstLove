@@ -150,7 +150,7 @@ function love.load(arg)
     -- This color will used for fullscreen letterboxing when content doesn't fit exactly. (Optional)
     :setBackgroundColor(64, 64, 64)
 
-
+  -- add all font as objects
 	font_16bfZX = love.graphics.newFont("fonts/16bfZX.ttf", 16)
 	font_HelvetiPixel = love.graphics.newFont("fonts/HelvetiPixel.ttf", 16)
 	font_MicroStyle = love.graphics.newFont("fonts/MicroStyle.ttf", 16)
