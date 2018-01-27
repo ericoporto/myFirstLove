@@ -32,29 +32,30 @@ function Game:enter()
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
   map = sti("map/level1.lua")
 
-  -- Create new dynamic data layer called "Sprites" as the 8th layer
-  local layerSprites = map:addCustomLayer("Sprites", 2)
+  -- Create new dynamic data layer called "Sprites" as the nth layer
+  local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
   -- Draw player
   layerSprites.draw = function(self)
 
     -- Temporarily draw a point at our location so we know
     -- that our sprite is offset properly
-    love.graphics.setPointSize(8)
-    love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
+    -- love.graphics.setPointSize(8)
+    -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
 
     player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x-player.pxw/2,player.pos.y-player.pxh/1.1)
 
   end
 
+  local spawn_point
   -- Get player spawn object
   for k, object in pairs(map.objects) do
     if object.name == "Player" then
-      player = object
+      spawn_point = object
         break
       end
   end
 
-  player = Character.init('player','img/chara_player.png',64,128)
+  player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
 
   player.current_animation = player.animations.walk
 
