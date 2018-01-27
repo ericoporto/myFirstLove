@@ -37,12 +37,14 @@ function Game:enter()
   local layerSprites = map:addCustomLayer("Sprites", 2)
   -- Draw player
   layerSprites.draw = function(self)
-    player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x,player.pos.y)
 
     -- Temporarily draw a point at our location so we know
     -- that our sprite is offset properly
-    love.graphics.setPointSize(5)
+    love.graphics.setPointSize(8)
     love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
+
+    player.current_animation[player.current_direction]:draw(player.sprite,player.pos.x-player.pxw/2,player.pos.y-player.pxh/1.1)
+
   end
 
   -- Get player spawn object
@@ -54,6 +56,8 @@ function Game:enter()
   end
 
   player= {
+    pxw = 24,
+    pxh = 24,
     pos = {
       x = 64,
       y = 128
@@ -194,8 +198,10 @@ local function drawFn()
     -- zuera
     love.graphics.setColor( 255, 255, 255, 255 )
     love.graphics.setFont(font_Verdana2)
-    love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)
-    love.graphics.rectangle("fill", 30+12*b, 30+15*b, 16, 32 )
+    love.graphics.print("ui do jogo placeholder",32,32)
+    
+    -- love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)
+    -- love.graphics.rectangle("fill", 30+12*b, 30+15*b, 16, 32 )
   end)
 
 
