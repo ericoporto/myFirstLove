@@ -128,16 +128,16 @@ Music   = Proxy(function(k) return love.audio.newSource('music/' .. k .. '.ogg',
     
 -- Require all files in a folder and its subfolders, this way we do not have to require every new file
 local function recursiveRequire(folder, tree)
-    local tree = tree or {}
-    for i,file in ipairs(love.filesystem.getDirectoryItems(folder)) do
-        local filename = folder.."/"..file
-        if love.filesystem.isDirectory(filename) then
-            recursiveRequire(filename)
-        elseif file ~= ".DS_Store" then
-            require(filename:gsub(".lua",""))
-        end
-    end
-    return tree
+  local tree = tree or {}
+  for i,file in ipairs(love.filesystem.getDirectoryItems(folder)) do
+      local filename = folder.."/"..file
+      if love.filesystem.isDirectory(filename) then
+          recursiveRequire(filename)
+      elseif file ~= ".DS_Store" then
+          require(filename:gsub(".lua",""))
+      end
+  end
+  return tree
 end
 
 
