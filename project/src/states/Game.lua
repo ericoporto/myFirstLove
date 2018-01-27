@@ -30,7 +30,7 @@ function Game:enter()
   local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
 
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
-  map = sti("map/test.lua")
+  map = sti("map/level1.lua")
 
   -- Create new dynamic data layer called "Sprites" as the 8th layer
   local layerSprites = map:addCustomLayer("Sprites", 2)
@@ -61,10 +61,11 @@ function Game:enter()
   camera = Camera(player.pos.x, player.pos.y)
   a=0
   b=0
+
+  Music.theme:play()
 end
 
 function Game:update(dt)
-
 
   local speed = 96
 

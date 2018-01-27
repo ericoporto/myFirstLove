@@ -41,8 +41,8 @@ font_SullyVerge = nil
 font_TimesNewPixel = nil
 font_Verdana2 = nil
 
-GAME_WIDTH = 640
-GAME_HEIGHT = 360
+GAME_WIDTH = 320
+GAME_HEIGHT = 180
 
 -- shader screen
 shader_screen = nil
@@ -201,10 +201,13 @@ function love.load(arg)
 			return finalColor;
 		}
   ]]
+
+
 end
 
 -- Logic
 function love.update( dt )
+  -- things for joystick
 	if p1joystick ~= nil then
 		-- getGamepadAxis returns a value between -1 and 1.
 		-- It returns 0 when it is at rest
