@@ -98,7 +98,7 @@ local function drawFn()
         tx = math.floor(tx)
         ty = math.floor(ty)
 
-        print("tx = " , tostring(tx) , "; ty = " , tostring(ty))
+        -- print("tx = " , tostring(tx) , "; ty = " , tostring(ty))
 
 
 	    map:draw(-tx, -ty, camera.scale, camera.scale)
