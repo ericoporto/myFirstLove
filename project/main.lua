@@ -17,6 +17,8 @@ local strict    = requireLibrary("strict")
 local slam      = requireLibrary("slam")
 local Terebi    = requireLibrary("terebi")
 local Gamestate = requireLibrary("hump/gamestate")
+
+-- the library for Tiled map
 sti = requireLibrary("sti")
 
 -- Declare Global Variables
@@ -24,6 +26,7 @@ screen = nil
 class_commons = nil
 common = nil
 no_game_code = nil
+
 
 -- fonts
 font_16bfZX = nil
@@ -37,6 +40,9 @@ font_Verdana2 = nil
 
 -- shader screen
 shader_screen = nil
+
+-- the keyboard and joystick interface
+keys = {}
 
 -- Global Functions inspired by picolove https://github.com/gamax92/picolove/blob/master/api.lua
 function all(a)
@@ -182,13 +188,15 @@ end
 
 -- Input
 function love.keypressed(key)
-  if     key == 'i' then
+  if     key == '=' or key == '+' then
     screen:increaseScale()
-  elseif key == 'd' then
+  elseif key == '-' then
     screen:decreaseScale()
-  elseif key == 'f' then
+  elseif key == 'f11' then
     screen:toggleFullscreen()
-  end	
+	end	
+	
+
 end
 
 function love.keyreleased()
