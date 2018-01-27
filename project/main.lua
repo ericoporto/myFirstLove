@@ -213,7 +213,7 @@ function love.update( dt )
 		-- It returns 0 when it is at rest
 
 		if     p1joystick:getGamepadAxis("leftx")<-0.2 then
-			if keys_previousGamepad['left']==false then
+			if keys_previousGamepad['left']~=true then
 				keys_pressed['left'] = true
 				keys_previousGamepad['left'] = true
 			end
@@ -226,7 +226,7 @@ function love.update( dt )
 
 
 		if     p1joystick:getGamepadAxis("leftx")>0.2 then
-			if keys_previousGamepad['right']==false then
+			if keys_previousGamepad['right']~=true then
 				keys_pressed['right'] = true
 				keys_previousGamepad['right'] = true
 			end
@@ -238,8 +238,8 @@ function love.update( dt )
 		end
 
 
-		if     p1joystick:getGamepadAxis("lefty")<-0.2 then
-			if keys_previousGamepad['down']==false then
+		if     p1joystick:getGamepadAxis("lefty")>0.2 then
+			if keys_previousGamepad['down']~=true then
 				keys_pressed['down'] = true
 				keys_previousGamepad['down'] = true
 			end
@@ -251,8 +251,8 @@ function love.update( dt )
 		end
 
 
-		if     p1joystick:getGamepadAxis("lefty")>0.2 then
-			if keys_previousGamepad['up']==false then
+		if     p1joystick:getGamepadAxis("lefty")<-0.2 then
+			if keys_previousGamepad['up']~=true then
 				keys_pressed['up'] = true
 				keys_previousGamepad['up'] = true
 			end
