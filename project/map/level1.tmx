@@ -152,7 +152,7 @@
  <objectgroup name="objDecoracao">
   <object id="40" gid="881" x="-63.5" y="504" width="192" height="192"/>
   <object id="41" gid="882" x="97" y="581.5" width="192" height="192"/>
-  <object id="42" gid="883" x="53.5" y="387" width="192" height="192"/>
+  <object id="42" gid="883" x="99.5" y="376" width="192" height="192"/>
   <object id="43" gid="905" x="186.5" y="351.5" width="192" height="192"/>
  </objectgroup>
  <objectgroup name="objLayer">
@@ -164,6 +164,7 @@
 &amp;
 
 You have to go .</property>
+    <property name="type" value="trigger"/>
    </properties>
   </object>
   <object id="29" name="Player" gid="180" x="96" y="432" width="16" height="16"/>

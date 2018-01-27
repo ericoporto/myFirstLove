@@ -671,8 +671,8 @@ return {
           name = "",
           type = "",
           shape = "rectangle",
-          x = 53.5,
-          y = 387,
+          x = 99.5,
+          y = 376,
           width = 192,
           height = 192,
           rotation = 0,
@@ -720,7 +720,8 @@ return {
           visible = true,
           properties = {
             ["id"] = "1",
-            ["msg"] = "Hello there. \n\n&\n\nYou have to go ."
+            ["msg"] = "Hello there. \n\n&\n\nYou have to go .",
+            ["type"] = "trigger"
           }
         },
         {

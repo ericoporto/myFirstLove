@@ -26,6 +26,7 @@ local img_chara_agent
 local player
 local last_level
 
+local list_triggers = {}
 
 function setLevel(n)
   if last_level==1 then 
@@ -33,7 +34,7 @@ function setLevel(n)
   end
 
   if n==1 then
-    map = sti("map/level1.lua")
+    map = sti("map/level1.lua", { "box2d" })
 
     -- Create new dynamic data layer called "Sprites" as the nth layer
     local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
@@ -58,6 +59,15 @@ function setLevel(n)
         end
     end
   
+
+    -- Get triggers object
+    for k, object in pairs(map.objects) do
+      if object.properties['type'] == "trigger" then
+        table.insert(list_triggers,object)
+          break
+        end
+    end
+
     player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
   
     player.current_animation = player.animations.walk
@@ -137,6 +147,17 @@ function Game:update(dt)
 
   map:update(dt)
   camera:move(dx/2, dy/2)
+
+  for k, object in pairs(list_triggers) do
+    if object.x >= player.pos.x - player.pxw/2 and
+      object.x <= player.pos.x + player.pxw/2 and 
+      object.y >= player.pos.y - player.pxh/2 and
+      object.y <= player.pos.y + player.pxh/2 then
+      
+      print('test')
+        break
+      end
+  end
 
   if player.pos.x>240 then
     setLevel(1)
