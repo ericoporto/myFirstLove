@@ -570,7 +570,7 @@ return {
       offsetx = 0,
       offsety = 0,
       properties = {
-        ["collidable"] = true
+        ["collidable"] = "true"
       },
       encoding = "lua",
       data = {
