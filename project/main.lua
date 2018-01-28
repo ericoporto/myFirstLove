@@ -370,6 +370,15 @@ function love.joystickpressed(joystick, btn)
 end
 
 function love.joystickreleased(joystick, btn)
+	if     tonumber(btn) == 3 then
+		keys_pressed['buttonx'] = nil
+	elseif tonumber(btn) == 1 then
+		keys_pressed['buttona'] = nil
+	elseif tonumber(btn) == 4 then
+		keys_pressed['buttony'] = nil
+	elseif tonumber(btn) == 2 then
+		keys_pressed['buttonb'] = nil
+	end
 	
 end
 

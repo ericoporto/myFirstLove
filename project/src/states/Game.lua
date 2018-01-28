@@ -3,18 +3,29 @@
 --
 
 local Gamestate     = requireLibrary("hump.gamestate")
-local timer         = requireLibrary("hump.timer")
+local Timer         = requireLibrary("hump.timer")
 local Vector        = requireLibrary("hump.vector")
 local Camera        = requireLibrary("hump.camera")
 local anim8         = requireLibrary("anim8")
-local tween         = timer.tween
+--local Timer         = requireLibrary("knife.timer")
+local Chain         = requireLibrary("knife.chain")
+local tween         = Timer.tween
 local Character     = require 'src/entities/Character'
 local lume          = requireLibrary("lume")
+local WaitForButton = requireLibrary("waitforbutton")
 local map
 local strength
 local cnv
 local player
 local camera
+
+local screen_msg = nil
+local screen_msg_x = 0
+local screen_msg_y = 0
+local screen_msg_w = 0
+local screen_msg_h = 0
+local screen_msg_txt_x = 0
+local screen_msg_txt_y = 0
 
 local world 
 
@@ -32,7 +43,36 @@ local list_exit_points = {}
 local list_enemySpawner = {}
 local sprite_list = {}
 
-function setLevel(n)
+local is_accept_enable = true
+local function f_isAcceptPressed()
+  if  is_accept_enable and keys_pressed['buttona'] then 
+    is_accept_enable = false
+
+    print(keys_pressed['buttona'])
+    -- prevents player from skipping all text by accident
+    Timer.after(0.6, function()
+      is_accept_enable = true
+    end)
+    return true
+  else
+    return false
+  end
+end
+
+
+local function sayInBox(msg)
+  screen_msg_x = GAME_WIDTH/16
+  screen_msg_y = 2*GAME_HEIGHT/3
+  screen_msg_w = 14*GAME_WIDTH/16
+  screen_msg_h = GAME_HEIGHT/4
+  screen_msg_txt_x = screen_msg_x + 16
+  screen_msg_txt_y = screen_msg_y + 16
+  screen_msg = msg
+end
+
+local function setLevel(n)
+  is_accept_enable = true
+
   if last_level==1 then 
     Music.theme:stop()
   elseif n==2 then
@@ -41,10 +81,10 @@ function setLevel(n)
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-    -- Music.theme:play()
+    Music.theme:play()
   elseif n==2 then
     map = sti("map/level2.lua", { "box2d" })
-    -- Music.theme:play()
+    Music.theme:play()
   end
     
   if map ~= nil then
@@ -142,8 +182,15 @@ end
 
 
 function Game:update(dt)
-	-- Make sure to do this or nothign will work!
-	world:update(dt)
+  -- Make sure to do this or nothign will work!
+  -- updates Timer, pay attention to use dot instead of collon
+  Timer.update(dt)
+
+  -- waitForButton
+  WaitForButton:update(dt)
+  
+  -- update the world
+  world:update(dt)
 
   local speed = 96
   
@@ -238,9 +285,9 @@ function Game:update(dt)
     if object ~= nil then
 
       if object.x >= player.pos.x - player.pxw/2 and
-          object.x <= player.pos.x + player.pxw/2 and 
-          object.y >= player.pos.y - player.pxh/2 and
-          object.y <= player.pos.y + player.pxh/2 then
+        object.x <= player.pos.x + player.pxw/2 and 
+        object.y >= player.pos.y - player.pxh/2 and
+        object.y <= player.pos.y + player.pxh/2 then
 
         -- hack, we need to have a property to tell the proper level to advance to
         setLevel(last_level+1)
@@ -254,10 +301,30 @@ function Game:update(dt)
     if object ~= nil then
 
       if object.x+object.width >= player.pos.x - player.pxw/2 and
-          object.x <= player.pos.x + player.pxw/2 and 
-          object.y >= player.pos.y - player.pxh/2 and
-          object.y-object.height <= player.pos.y + player.pxh/2 then
-        print(object.width)
+      object.x <= player.pos.x + player.pxw/2 and 
+      object.y >= player.pos.y - player.pxh/2 and
+      object.y-object.height <= player.pos.y + player.pxh/2 then
+        Chain(
+          function (go)
+              sayInBox('fading in')
+              WaitForButton:init(f_isAcceptPressed, go)
+          end,
+          function (go)
+            sayInBox('showing splash screen')
+              WaitForButton:init(f_isAcceptPressed, go)
+          end,
+          function (go)
+            sayInBox('showing title screen')
+              WaitForButton:init(f_isAcceptPressed, go)
+          end,
+          function (go)
+            sayInBox('playing demo')
+              WaitForButton:init(f_isAcceptPressed, go)
+          end,
+          function (go)
+            sayInBox()
+          end
+        )()
       
         if object.properties['spawnEnnemy'] ~= nil then
           -- print(object.properties.spawnEnnemy)
@@ -331,6 +398,20 @@ local function drawFn()
         
     end)
     -- mapa
+
+    if screen_msg ~= nil and string.len(screen_msg)>1 then
+      love.graphics.setColor(0,0,0,128)
+      love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
+      love.graphics.setFont(font_Verdana2)
+      love.graphics.print(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y-1)
+      love.graphics.print(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y+1)
+      love.graphics.print(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y)
+      love.graphics.print(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y)
+      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y+1)
+      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y-1)
+      love.graphics.setColor( 255, 255, 255, 255 )
+      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y)
+    end
 
     -- zuera
     if debug_mode then
