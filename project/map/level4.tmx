@@ -62,13 +62,13 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="objLayer">
+ <objectgroup name="objLayer" visible="0">
   <object id="1" name="Player" gid="1087" x="245.667" y="214.334" width="16" height="16"/>
   <object id="2" name="triggerDialog" gid="1126" x="399.667" y="236.333" width="33" height="32.6667">
    <properties>
     <property name="ennemyType" value="idle"/>
     <property name="id" value="1"/>
-    <property name="msg">-Agent Linda: We wouldn’t have been able to save everyone from the virus LT03 if it wasn’t for bravery. &amp; 
+    <property name="msg">-Agent Linda: We would not have been able to save everyone from the virus LT03 if it was not for your bravery. &amp; 
 This disease is affecting terribly the whole country and the BRND Pharmaceutics wanted to profit from this disaster. &amp; 
 But not anymore, thanks to you. Now the secret formula behind the antivirus is out for the whole world to use!!!</property>
     <property name="msgfr">-Agent Linda: Nous n'aurions pas pu sauver tout le monde du virus LT03 si ce n'etait de bravoure. &amp; Cette maladie affecte terriblement tout le pays et la BRND Pharmaceutics a voulu profiter de cette catastrophe. &amp;
