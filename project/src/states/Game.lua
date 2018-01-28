@@ -183,22 +183,51 @@ local function setLevel(n)
         local enemy = Character.init('enemy','img/chara_agent.png',object.x,object.y)
         enemy.id = object.properties.id
         enemy.active = false
+        enemy.body = love.physics.newBody(world, enemy.pos.x, enemy.pos.y, "dynamic")
+        enemy.body:setLinearDamping(10)
+        enemy.body:setFixedRotation(true)
+        enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
+        enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
         enemy.update = function(target)
           if (screen_msg ~= nil and string.len(screen_msg) > 1) then
           else
+            local vx, vy = enemy.body:getLinearVelocity()
             if (enemy.pos.x > target.pos.x + 4) then
-              enemy.pos.x = enemy.pos.x - 1
+              vx = vx - 10
             elseif (enemy.pos.x < target.pos.x - 4) then
-              enemy.pos.x = enemy.pos.x + 1
+              vx = vx + 10
             end
   
             if (enemy.pos.y > target.pos.y + 4) then
-              enemy.pos.y = enemy.pos.y - 1
+              vy = vy - 10
             elseif (enemy.pos.x < target.pos.y - 4) then
-              enemy.pos.y = enemy.pos.y + 1
+              vy = vy + 10
+            end
+            enemy.body:setLinearVelocity(vx, vy)
+            enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
+  
+            if (vx > 10) then
+              enemy.current_direction = 'right'
+              if vy > 10 then
+                enemy.current_direction = 'down_right'
+              elseif vy < -10 then
+                enemy.current_direction = 'up_right'
+              end
+            elseif (vx < -10) then
+              enemy.current_direction = 'left'
+              if vy > 10 then
+                enemy.current_direction = 'down_left'
+              elseif vy < -10 then
+                enemy.current_direction = 'up_left'
+              end
+            else
+              if vy > 10 then
+                enemy.current_direction = 'down'
+              elseif vy < -10 then
+                enemy.current_direction = 'up'
+              end
             end
           end
-          
         end
         table.insert(sprite_list,enemy)
       end
@@ -216,7 +245,6 @@ local function setLevel(n)
     player.current_animation = player.animations.walk
   
     camera = Camera(player.pos.x, player.pos.y)
-  
   end
 
   last_level = n
