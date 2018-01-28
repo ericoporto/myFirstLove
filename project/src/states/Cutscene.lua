@@ -35,6 +35,7 @@ function Cutscene:enter()
   cutscene_p1_xpos = 2*GAME_WIDTH
   cutscene_p2_xpos = 2*GAME_WIDTH
   cutscene_p3_xpos = 2*GAME_WIDTH
+  Sfx.GGJ18_cutscene_sniper_fire:play()
 end
 
 function Cutscene:update(dt)
