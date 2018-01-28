@@ -747,6 +747,23 @@ function lume.rgba(color)
   return r, g, b, a
 end
 
+function lume.splitStr(str, exp)
+  local a = {}
+  local phrase = "";
+  for i in string.gmatch(str, "%S+") do
+    if i == exp then
+      table.insert(a, phrase)
+      phrase = ""
+    else
+      phrase = phrase .. " " .. i
+    end
+  end
+  if (phrase ~= "") then
+    table.insert(a, phrase)
+  end
+  return a
+end
+
 
 local chain_mt = {}
 chain_mt.__index = lume.map(lume.filter(lume, iscallable, true),

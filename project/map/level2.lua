@@ -1250,7 +1250,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "1",
-            ["msg"] = "phone rings..&\n-Allo?!&\n-They know about the virus project!\n&-Wait, who are you!\n&-You have to go. There no time to explain! Go to the north on the copy machine room!",
+            ["msg"] = "phone rings.. & \n-Allo?! & \n-They know about the virus project!\n & -Wait, who are you!\n & -You have to go. There no time to explain! Go to the north on the copy machine room!",
             ["spawnEnnemy"] = "1",
             ["type"] = "trigger"
           }
@@ -1284,7 +1284,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "2",
-            ["msg"] = "Fax.. incoming..&\nBe carefull all comunications are hacked! Infiltred agents are there to kill you! avoid them, I 'll try to guide your path to the next floor.",
+            ["msg"] = "Fax.. incoming.. & \nBe carefull all comunications are hacked! & Infiltred agents are there to kill you! avoid them, I 'll try to guide your path to the next floor.",
             ["spawnEnnemy"] = 0,
             ["type"] = "trigger"
           }
@@ -1400,7 +1400,7 @@ return {
           properties = {
             ["ennemyType"] = "patrol",
             ["id"] = "3",
-            ["msg"] = "Radio static..&\n-Allo, Allo, ..&\n-I'm here!&\nErr found a radio here .. oh that's convenient.. &\n Hang on. When I say run! Take the corridor,and  go east!",
+            ["msg"] = "Radio static.. & \n-Allo, Allo, .. & \n-I'm here! & \nErr found a radio here .. oh that's convenient.. & \n Hang on. When I say run! Take the corridor,and  go east!",
             ["spawnEnnemy"] = 2,
             ["type"] = "trigger"
           }

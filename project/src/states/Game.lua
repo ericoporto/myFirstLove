@@ -43,6 +43,10 @@ local list_exit_points = {}
 local list_enemySpawner = {}
 local sprite_list = {}
 
+local transmissionMessages = {}
+local currentTransmissionId = nil
+local nextTransmissionRequest = false
+
 local is_accept_enable = true
 local function f_isAcceptPressed()
   if  is_accept_enable and keys_pressed['buttona'] then 
@@ -76,6 +80,8 @@ local function setLevel(n)
   list_exit_points = {}
   list_enemySpawner = {}
   sprite_list = {}
+  transmissionMessages = {}
+  currentTransmissionId = nil
 
   if last_level==1 then 
     Music.theme:stop()
@@ -131,9 +137,7 @@ local function setLevel(n)
           love.graphics.setColor(255,255,255)
         end
       end
-  
     end
-
 
     -- Get exit points of the map
     for k, object in pairs(map.objects) do
@@ -151,12 +155,23 @@ local function setLevel(n)
           break
       end
     end
-  
 
     -- Get triggers object
     for k, object in pairs(map.objects) do
-      if object.properties['type'] == "trigger" then
+      if object.properties['type'] == "trigger" and object.properties.msg ~= nil then
         table.insert(list_triggers,object)
+        -- transmissionMessages[k] = {}
+        object.properties.id = tonumber(object.properties.spawnEnnemy )
+        transmissionMessages[object.properties.id] = {}
+        local aMessages = lume.splitStr(object.properties.msg, "&")
+        -- sayInBox(object.properties.msg)
+        -- print (object.properties.msg)
+        for i = 1, #aMessages do
+          print(aMessages[i])
+          table.insert(transmissionMessages[object.properties.id], { seen = false, msg = aMessages[i] })
+        end
+        table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
+        print("\n")
       end
     end
 
@@ -170,17 +185,21 @@ local function setLevel(n)
         enemy.id = object.properties.id
         enemy.active = false
         enemy.update = function(target)
-          if (enemy.pos.x > target.pos.x + 4) then
-            enemy.pos.x = enemy.pos.x - 1
-          elseif (enemy.pos.x < target.pos.x - 4) then
-            enemy.pos.x = enemy.pos.x + 1
+          if (screen_msg ~= nil and string.len(screen_msg) > 1) then
+          else
+            if (enemy.pos.x > target.pos.x + 4) then
+              enemy.pos.x = enemy.pos.x - 1
+            elseif (enemy.pos.x < target.pos.x - 4) then
+              enemy.pos.x = enemy.pos.x + 1
+            end
+  
+            if (enemy.pos.y > target.pos.y + 4) then
+              enemy.pos.y = enemy.pos.y - 1
+            elseif (enemy.pos.x < target.pos.y - 4) then
+              enemy.pos.y = enemy.pos.y + 1
+            end
           end
-
-          if (enemy.pos.y > target.pos.y + 4) then
-            enemy.pos.y = enemy.pos.y - 1
-          elseif (enemy.pos.x < target.pos.y - 4) then
-            enemy.pos.y = enemy.pos.y + 1
-          end
+          
         end
         table.insert(sprite_list,enemy)
       end
@@ -291,8 +310,13 @@ function Game:update(dt)
     vx = lume.lerp(vx, 0, 0.2)
   end
 
-  vx = lume.clamp(vx, -140, 140)
-  vy = lume.clamp(vy, -140, 140)
+  if (screen_msg ~= nil and string.len(screen_msg) > 1) then
+    vx = 0
+    vy = 0
+  else
+    vx = lume.clamp(vx, -140, 140)
+    vy = lume.clamp(vy, -140, 140)
+  end
 
   player.body:setLinearVelocity(vx, vy);
 
@@ -328,54 +352,42 @@ function Game:update(dt)
     end 
   end
 
+  if currentTransmissionId ~= nil then
+    local i = 1
+    local t = transmissionMessages[currentTransmissionId]
+    
+    if t ~= nil then
+      for i = 1, #t do
+        if i == #t then
+          for j,ent in pairs(sprite_list) do
+            if ent.type == 'enemy' and ent.id == currentTransmissionId then
+              print (currentTransmissionId .. " " .. ent.id)
+              ent.active = true
+            end
+          end
+          -- break
+        end
+        if not t[i].seen and f_isAcceptPressed() then
+          t[i].seen = true
+        end
+        if not t[i].seen then
+          sayInBox(t[i].msg)
+          break
+        end
+      end
+    end
+  end
+
   -- this function checks for all triggers and triger then when player is on top
   for k, object in pairs(list_triggers) do
     if object ~= nil then
 
-      if object.x+object.width >= player.pos.x - player.pxw/2 and
-      object.x <= player.pos.x + player.pxw/2 and 
-      object.y >= player.pos.y - player.pxh/2 and
-      object.y-object.height <= player.pos.y + player.pxh/2 then
-
-        local spawn_enemy
-        Chain(
-          function (go)
-            sayInBox(object.properties.msg)
-            WaitForButton:init(f_isAcceptPressed, go)
-          end,
-          function (go)
-            sayInBox('showing splash screen')
-              WaitForButton:init(f_isAcceptPressed, go)
-          end,
-          function (go)
-            sayInBox('showing title screen')
-              WaitForButton:init(f_isAcceptPressed, go)
-          end,
-          function (go)
-            sayInBox('playing demo')
-              WaitForButton:init(f_isAcceptPressed, go)
-          end,
-          function (go)
-            sayInBox()
-          end
-        )()
-
-
-      
-        if object.properties['spawnEnnemy'] ~= nil then
-          -- print(object.properties.spawnEnnemy)
-
-          for j,ent in pairs(sprite_list) do
-            if ent.type == 'enemy' and ent.id == object.properties['spawnEnnemy'] then
-              ent.active = true
-            end
-            -- enemy.current_direction = 'down'
-            -- list_enemySpawner[j]=nil
-          end
-
-          object = nil
-          list_triggers[k]=nil
-        end
+      if object.x + object.width >= player.pos.x - player.pxw / 2 and
+          object.x <= player.pos.x + player.pxw / 2 and 
+          object.y >= player.pos.y - player.pxh / 2 and
+          object.y-object.height <= player.pos.y + player.pxh / 2 then
+        
+        currentTransmissionId = tonumber(object.properties.id)
       -- print('test')
         break
       end
@@ -445,6 +457,8 @@ local function drawFn()
       love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y-1, t_limit, t_align)
       love.graphics.setColor( 255, 255, 255, 255 )
       love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y, t_limit, t_align)
+    else
+      --currentTransmissionId = nil
     end
 
     -- zuera
