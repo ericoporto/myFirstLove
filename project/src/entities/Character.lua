@@ -5,6 +5,7 @@ function Character.init(type,image,x,y)
     local chara = {}
     chara.type = type
     chara.pos = { x = x, y = y }
+    chara.active = true
     chara.pxw = 24
     chara.pxh = 24
     chara.sprite = love.graphics.newImage(image)

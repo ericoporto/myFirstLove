@@ -81,10 +81,10 @@ local function setLevel(n)
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-    Music.theme:play()
+    --Music.theme:play()
   elseif n==2 then
     map = sti("map/level2.lua", { "box2d" })
-    Music.theme:play()
+    --Music.theme:play()
   end
     
   if map ~= nil then
@@ -106,12 +106,24 @@ local function setLevel(n)
       -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
   
       for _,spr in pairs(sprite_list) do
-        spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
-        if debug_mode and spr.body ~= nil then 
-          love.graphics.setColor(255,0,0)
-          -- love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
-          local x, y = spr.body:getWorldCenter()
-          love.graphics.circle("line", x, y, 4)
+        if spr.active then
+          spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
+        end
+        if spr.type == 'enemy' then
+          if spr.active then
+            spr.update(player)
+          end        
+        end
+        
+        if debug_mode then
+          if spr.body ~= nil then 
+            love.graphics.setColor(255,0,0)
+            -- love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
+            local x, y = spr.body:getWorldCenter()
+            love.graphics.circle("line", x, y, 4)
+          end
+          love.graphics.setColor(20, 180, 255)
+          love.graphics.circle("line", spr.pos.x, spr.pos.y, 80)
           love.graphics.setColor(255,255,255)
         end
       end
@@ -149,7 +161,23 @@ local function setLevel(n)
     for k, object in pairs(map.objects) do
       if object.name == "ennemySpawner" then
         object.properties.id = tonumber(object.properties.id )
-        table.insert(list_enemySpawner,object)
+        -- table.insert(list_enemySpawner,object)
+        local enemy = Character.init('enemy','img/chara_agent.png',object.x,object.y)
+        enemy.active = false
+        enemy.update = function(target)
+          if (enemy.pos.x > target.pos.x + 4) then
+            enemy.pos.x = enemy.pos.x - 1
+          elseif (enemy.pos.x < target.pos.x - 4) then
+            enemy.pos.x = enemy.pos.x + 1
+          end
+
+          if (enemy.pos.y > target.pos.y + 4) then
+            enemy.pos.y = enemy.pos.y - 1
+          elseif (enemy.pos.x < target.pos.y - 4) then
+            enemy.pos.y = enemy.pos.y + 1
+          end
+        end
+        table.insert(sprite_list,enemy)
       end
     end
 
@@ -224,7 +252,6 @@ function Game:update(dt)
         -- player.pos.y=player.pos.y-speed*dt
         -- force_y = force_y - 400
         vy = vy - acc
-      
       end
     end
 
@@ -304,10 +331,6 @@ function Game:update(dt)
       object.x <= player.pos.x + player.pxw/2 and 
       object.y >= player.pos.y - player.pxh/2 and
       object.y-object.height <= player.pos.y + player.pxh/2 then
-
-        
-        
-
         Chain(
           function (go)
               sayInBox(object.properties.msg)
@@ -333,16 +356,12 @@ function Game:update(dt)
         if object.properties['spawnEnnemy'] ~= nil then
           -- print(object.properties.spawnEnnemy)
 
-          for j,enemySpawner in pairs(list_enemySpawner) do
-            if enemySpawner.properties.id == tonumber(object.properties.spawnEnnemy) then 
-              -- print('spawned!')
-              local enemy = Character.init('enemy','img/chara_agent.png',enemySpawner.x,enemySpawner.y)
-              enemy.current_direction = 'down'
-              table.insert(sprite_list,enemy)
-
-              enemySpawner = nil
-              list_enemySpawner[j]=nil
+          for j,ent in pairs(sprite_list) do
+            if ent.type == 'enemy' then
+              ent.active = true
             end
+            -- enemy.current_direction = 'down'
+            -- list_enemySpawner[j]=nil
           end
 
           object = nil
