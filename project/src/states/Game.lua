@@ -17,6 +17,8 @@ local cnv
 local player
 local camera
 
+local world 
+
 Game = Gamestate.new()
 
 local stuff = {}
@@ -37,6 +39,14 @@ function setLevel(n)
 
   if n==1 then
     map = sti("map/level1.lua", { "box2d" })
+
+    
+    -- Prepare physics world
+    world = love.physics.newWorld(0, 0)
+
+    -- Prepare collision objects
+    map:box2d_init(world)
+
     sprite_list = {}
     -- Create new dynamic data layer called "Sprites" as the nth layer
     local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
@@ -81,6 +91,9 @@ function setLevel(n)
     end
 
     player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
+    player.body = love.physics.newBody(world, player.pos.x/2, player.pos.y/2, "dynamic")
+    player.body:setLinearDamping(10)
+    player.body:setFixedRotation(true)
     table.insert(sprite_list,player)
   
     player.current_animation = player.animations.walk
@@ -105,6 +118,8 @@ function Game:enter()
 end
 
 function Game:update(dt)
+	-- Make sure to do this or nothign will work!
+	world:update(dt)
 
   local speed = 96
 
@@ -127,29 +142,38 @@ function Game:update(dt)
   end
 
   
+	local force_x, force_y = 0, 0
+  
   if keys_pressed['up'] then
     if player.pos.y>0 then
-      player.pos.y=player.pos.y-speed*dt
+      -- player.pos.y=player.pos.y-speed*dt
+      force_y = force_y - 4000
     end
   end
 
   if keys_pressed['down'] then
     if player.pos.y<map.height*map.tileheight then
-      player.pos.y=player.pos.y+speed*dt
+      -- player.pos.y=player.pos.y+speed*dt
+      force_y = force_y + 4000
     end
   end
 
   if keys_pressed['left'] then
     if player.pos.x>0 then
-      player.pos.x=player.pos.x-speed*dt
+      -- player.pos.x=player.pos.x-speed*dt
+      force_x = force_x - 4000
     end
   end
 
   if keys_pressed['right'] then
     if player.pos.x<map.width*map.tilewidth then
-      player.pos.x=player.pos.x+speed*dt
+      -- player.pos.x=player.pos.x+speed*dt
+      force_x = force_x + 4000
     end
   end
+
+	player.body:applyForce(force_x, force_y)
+	player.pos.x, player.pos.y = player.body:getWorldCenter()
 
   a=a+1
   b=math.cos(a/32)
@@ -165,6 +189,7 @@ function Game:update(dt)
   camera:move(dx/2, dy/2)
 
 
+  -- this function checks for all triggers and triger then when player is on top
   for k, object in pairs(list_triggers) do
     if object ~= nil then
 
@@ -174,11 +199,11 @@ function Game:update(dt)
       object.y <= player.pos.y + player.pxh/2 then
       
         if object.properties['spawnEnnemy'] ~= nil then
-          print(object.properties.spawnEnnemy)
+          -- print(object.properties.spawnEnnemy)
 
           for j,enemySpawner in pairs(list_enemySpawner) do
             if enemySpawner.properties.id == tonumber(object.properties.spawnEnnemy) then 
-              print('spawned!')
+              -- print('spawned!')
               local enemy = Character.init('enemy','img/chara_agent.png',enemySpawner.x,enemySpawner.y)
               enemy.current_direction = 'down'
               table.insert(sprite_list,enemy)
@@ -191,7 +216,7 @@ function Game:update(dt)
           object = nil
           list_triggers[k]=nil
         end
-      print('test')
+      -- print('test')
         break
       end
     end
