@@ -612,7 +612,7 @@ return {
     {
       type = "objectgroup",
       name = "objLayer",
-      visible = false,
+      visible = true,
       opacity = 1,
       offsetx = 0,
       offsety = 0,

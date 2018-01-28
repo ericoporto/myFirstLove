@@ -229,10 +229,11 @@ function Game:update(dt)
   for k, object in pairs(list_triggers) do
     if object ~= nil then
 
-      if object.x >= player.pos.x - player.pxw/2 and
+      if object.x+object.width >= player.pos.x - player.pxw/2 and
       object.x <= player.pos.x + player.pxw/2 and 
       object.y >= player.pos.y - player.pxh/2 and
-      object.y <= player.pos.y + player.pxh/2 then
+      object.y-object.height <= player.pos.y + player.pxh/2 then
+        print(object.width)
       
         if object.properties['spawnEnnemy'] ~= nil then
           -- print(object.properties.spawnEnnemy)
@@ -308,9 +309,12 @@ local function drawFn()
     -- mapa
 
     -- zuera
-    love.graphics.setColor( 255, 255, 255, 255 )
-    love.graphics.setFont(font_Verdana2)
-    love.graphics.print("ui do jogo placeholder",32,32)
+    if debug_mode then
+      love.graphics.setColor( 255, 255, 255, 255 )
+      love.graphics.setFont(font_Verdana2)
+      love.graphics.print("DEBUG MODE",32,32)
+      love.graphics.print("player x="..player.pos.x..", y="..player.pos.y,32,8)
+    end
     
     -- love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)
     -- love.graphics.rectangle("fill", 30+12*b, 30+15*b, 16, 32 )
