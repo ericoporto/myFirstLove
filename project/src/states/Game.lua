@@ -75,6 +75,7 @@ function setLevel(n)
     -- Get triggers object
     for k, object in pairs(map.objects) do
       if object.name == "ennemySpawner" then
+        object.properties.id = tonumber(object.properties.id )
         table.insert(list_enemySpawner,object)
         end
     end
@@ -174,9 +175,19 @@ function Game:update(dt)
       
         if object.properties['spawnEnnemy'] ~= nil then
           print(object.properties.spawnEnnemy)
-          local enemy = Character.init('enemy','img/chara_agent.png',player.pos.x,player.pos.y)
-          enemy.current_direction = 'down'
-          table.insert(sprite_list,enemy)
+
+          for j,enemySpawner in pairs(list_enemySpawner) do
+            if enemySpawner.properties.id == tonumber(object.properties.spawnEnnemy) then 
+              print('spawned!')
+              local enemy = Character.init('enemy','img/chara_agent.png',enemySpawner.x,enemySpawner.y)
+              enemy.current_direction = 'down'
+              table.insert(sprite_list,enemy)
+
+              enemySpawner = nil
+              list_enemySpawner[j]=nil
+            end
+          end
+
           object = nil
           list_triggers[k]=nil
         end
