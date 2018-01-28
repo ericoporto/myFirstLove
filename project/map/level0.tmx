@@ -56,17 +56,17 @@
   <object id="15" gid="884" x="-49.6667" y="200.667" width="192" height="192"/>
  </objectgroup>
  <objectgroup name="objLayer">
-  <object id="5" name="triggerDialog" gid="219" x="51.8333" y="195.833" width="65.3333" height="88.6667">
+  <object id="5" name="triggerDialog" gid="219" x="58.5" y="195.166" width="65.3333" height="88.6667">
    <properties>
     <property name="ennemyType" value="idle"/>
     <property name="id" value="0"/>
-    <property name="msg" value="-They know about your project! You have to go! Avoid The agents!"/>
+    <property name="msg" value="-Hey! &amp; -They know about your project! You have to go! Avoid The agents!"/>
     <property name="msgfr" value="-Ils savent sur LE projet! Evitez les agents! Vaszyy!!!"/>
     <property name="spawnEnnemy" type="int" value="0"/>
     <property name="type" value="trigger"/>
    </properties>
   </object>
-  <object id="6" name="Player" gid="180" x="34" y="158.667" width="16" height="16"/>
+  <object id="6" name="Player" gid="180" x="27.3333" y="158.667" width="16" height="16"/>
   <object id="7" name="ennemySpawner" gid="220" x="167.333" y="64.6667" width="16" height="16">
    <properties>
     <property name="id" type="int" value="0"/>

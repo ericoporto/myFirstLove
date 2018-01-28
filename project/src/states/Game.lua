@@ -65,12 +65,12 @@ end
 
 
 local function sayInBox(msg)
-  screen_msg_x = GAME_WIDTH/16
-  screen_msg_y = 2*GAME_HEIGHT/3
-  screen_msg_w = 14*GAME_WIDTH/16
-  screen_msg_h = GAME_HEIGHT/4
-  screen_msg_txt_x = screen_msg_x + 8
-  screen_msg_txt_y = screen_msg_y + 4
+  screen_msg_x = 66
+  screen_msg_y = 103
+  screen_msg_w = 187
+  screen_msg_h = 41
+  screen_msg_txt_x = 66 
+  screen_msg_txt_y = 103 
   screen_msg = msg
 end
 
@@ -416,7 +416,7 @@ function Game:update(dt)
             end
             if playCutscene then 
 
-              goToGameState('Cutscene')
+              --goToGameState('Cutscene')
             end
           end
           -- break
@@ -498,10 +498,13 @@ local function drawFn()
     -- mapa
 
     if screen_msg ~= nil and string.len(screen_msg)>1 then
-      local t_limit = screen_msg_w-16
+      local t_limit = screen_msg_w-2
       local t_align = 'left'
+      love.graphics.setColor( 255, 255, 255, 255 )
+      love.graphics.draw(Image.ui_texto,0,0)
       love.graphics.setColor(0,0,0,128)
-      love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
+
+      -- love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
       love.graphics.setFont(font_Verdana2)
       love.graphics.printf(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y-1, t_limit, t_align)
       love.graphics.printf(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y+1, t_limit, t_align)

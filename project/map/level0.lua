@@ -624,8 +624,8 @@ return {
           name = "triggerDialog",
           type = "",
           shape = "rectangle",
-          x = 51.8333,
-          y = 195.833,
+          x = 58.5,
+          y = 195.166,
           width = 65.3333,
           height = 88.6667,
           rotation = 0,
@@ -634,7 +634,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "0",
-            ["msg"] = "-They know about your project! You have to go! Avoid The agents!",
+            ["msg"] = "-Hey! & -They know about your project! You have to go! Avoid The agents!",
             ["msgfr"] = "-Ils savent sur LE projet! Evitez les agents! Vaszyy!!!",
             ["spawnEnnemy"] = 0,
             ["type"] = "trigger"
@@ -645,7 +645,7 @@ return {
           name = "Player",
           type = "",
           shape = "rectangle",
-          x = 34,
+          x = 27.3333,
           y = 158.667,
           width = 16,
           height = 16,
