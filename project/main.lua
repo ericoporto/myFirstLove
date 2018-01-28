@@ -275,6 +275,10 @@ end
 
 -- Input
 function love.keypressed(key)
+  if     key == '' then
+
+  end
+
   if     key == '=' or key == '+' then
     screen:increaseScale()
   elseif key == '-' then

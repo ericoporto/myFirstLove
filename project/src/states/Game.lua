@@ -10,8 +10,6 @@ local anim8         = requireLibrary("anim8")
 local tween         = timer.tween
 local Character     = require 'src/entities/Character'
 local map
-local a
-local b
 local strength
 local cnv
 local player
@@ -38,7 +36,7 @@ function setLevel(n)
   end
 
   if n==1 then
-    map = sti("map/level1.lua", { "box2d" })
+    map = sti("map/level0.lua", { "box2d" })
 
     
     -- Prepare physics world
@@ -49,7 +47,7 @@ function setLevel(n)
 
     sprite_list = {}
     -- Create new dynamic data layer called "Sprites" as the nth layer
-    local layerSprites = map:addCustomLayer("Sprites", #map.layers + 1)
+    local layerSprites = map:addCustomLayer("Sprites", #map.layers - 1)
     -- Draw player
     layerSprites.draw = function(self)
   
@@ -60,6 +58,11 @@ function setLevel(n)
   
       for _,spr in pairs(sprite_list) do
         spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
+        if spr.body ~= nil then 
+          love.graphics.setColor(255,0,0)
+          love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
+          love.graphics.setColor(255,255,255)
+        end
       end
   
     end
@@ -91,16 +94,17 @@ function setLevel(n)
     end
 
     player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
-    player.body = love.physics.newBody(world, player.pos.x/2, player.pos.y/2, "dynamic")
+    player.body = love.physics.newBody(world, player.pos.x, player.pos.y, "dynamic")
     player.body:setLinearDamping(10)
     player.body:setFixedRotation(true)
+    player.shape   = love.physics.newRectangleShape(player.pxw/2, player.pxh/2)
+    player.fixture = love.physics.newFixture(player.body, player.shape)
+
     table.insert(sprite_list,player)
   
     player.current_animation = player.animations.walk
   
     camera = Camera(player.pos.x, player.pos.y)
-    a=0
-    b=0
   
     Music.theme:play()
   end
@@ -117,11 +121,13 @@ function Game:enter()
   setLevel(1)
 end
 
+
 function Game:update(dt)
 	-- Make sure to do this or nothign will work!
 	world:update(dt)
 
   local speed = 96
+  
 
   if keys_pressed['up'] and keys_pressed['right'] then 
     player.current_direction = 'up_right'
@@ -147,36 +153,33 @@ function Game:update(dt)
   if keys_pressed['up'] then
     if player.pos.y>0 then
       -- player.pos.y=player.pos.y-speed*dt
-      force_y = force_y - 4000
+      force_y = force_y - 400
     end
   end
 
   if keys_pressed['down'] then
     if player.pos.y<map.height*map.tileheight then
       -- player.pos.y=player.pos.y+speed*dt
-      force_y = force_y + 4000
+      force_y = force_y + 400
     end
   end
 
   if keys_pressed['left'] then
     if player.pos.x>0 then
       -- player.pos.x=player.pos.x-speed*dt
-      force_x = force_x - 4000
+      force_x = force_x - 400
     end
   end
 
   if keys_pressed['right'] then
     if player.pos.x<map.width*map.tilewidth then
       -- player.pos.x=player.pos.x+speed*dt
-      force_x = force_x + 4000
+      force_x = force_x + 400
     end
   end
 
 	player.body:applyForce(force_x, force_y)
 	player.pos.x, player.pos.y = player.body:getWorldCenter()
-
-  a=a+1
-  b=math.cos(a/32)
 
   local dx = player.pos.x - camera.x
   local dy = player.pos.y - camera.y
@@ -235,6 +238,7 @@ local function drawFn()
   -- love.graphics.draw(padLeft,a,2)
   love.graphics.setShader()
   cnv:renderTo(function()
+    love.graphics.clear(0,0,0,255)
 
 
     local tx = camera.x - GAME_WIDTH / 2
@@ -260,7 +264,7 @@ local function drawFn()
 
 
     map:draw(-tx, -ty, camera.scale, camera.scale)
-
+    map:box2d_draw(-tx, -ty, camera.scale, camera.scale)
 
     camera:draw(function()
         
@@ -279,7 +283,7 @@ local function drawFn()
 
   love.graphics.setShader(shader_screen)
   strength = math.sin(love.timer.getTime()*2)
-  shader_screen:send("abberationVector", {strength*math.sin(love.timer.getTime()*7)/200, strength*math.cos(love.timer.getTime()*7)/200})
+  shader_screen:send("abberationVector", {strength*math.sin(love.timer.getTime()*7)/200, strength*math.sin(love.timer.getTime()*7)/200})
 
   love.graphics.draw(cnv,0,0)
   
