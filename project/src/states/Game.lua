@@ -9,6 +9,7 @@ local Camera        = requireLibrary("hump.camera")
 local anim8         = requireLibrary("anim8")
 local tween         = timer.tween
 local Character     = require 'src/entities/Character'
+local lume          = requireLibrary("lume")
 local map
 local strength
 local cnv
@@ -40,10 +41,10 @@ function setLevel(n)
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   elseif n==2 then
     map = sti("map/level2.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   end
     
   if map ~= nil then
@@ -68,7 +69,9 @@ function setLevel(n)
         spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
         if debug_mode and spr.body ~= nil then 
           love.graphics.setColor(255,0,0)
-          love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
+          -- love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
+          local x, y = spr.body:getWorldCenter()
+          love.graphics.circle("line", x, y, 4)
           love.graphics.setColor(255,255,255)
         end
       end
@@ -80,8 +83,8 @@ function setLevel(n)
     for k, object in pairs(map.objects) do
       if object.name == "Exit" then
         table.insert(list_exit_points, object)
-          break
-        end
+        break
+      end
     end
   
     local spawn_point
@@ -90,7 +93,7 @@ function setLevel(n)
       if object.name == "Player" then
         spawn_point = object
           break
-        end
+      end
     end
   
 
@@ -98,7 +101,7 @@ function setLevel(n)
     for k, object in pairs(map.objects) do
       if object.properties['type'] == "trigger" then
         table.insert(list_triggers,object)
-        end
+      end
     end
 
 
@@ -107,14 +110,14 @@ function setLevel(n)
       if object.name == "ennemySpawner" then
         object.properties.id = tonumber(object.properties.id )
         table.insert(list_enemySpawner,object)
-        end
+      end
     end
 
     player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
     player.body = love.physics.newBody(world, player.pos.x, player.pos.y, "dynamic")
     player.body:setLinearDamping(10)
     player.body:setFixedRotation(true)
-    player.shape   = love.physics.newRectangleShape(player.pxw/2, player.pxh/2)
+    player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
     player.fixture = love.physics.newFixture(player.body, player.shape)
 
     table.insert(sprite_list,player)
@@ -164,38 +167,59 @@ function Game:update(dt)
   end
 
   
-	local force_x, force_y = 0, 0
+  local force_x, force_y = 0, 0
+  local vx, vy = player.body:getLinearVelocity()
+  local acc = 44
   
-  if keys_pressed['up'] then
-    if player.pos.y>0 then
-      -- player.pos.y=player.pos.y-speed*dt
-      force_y = force_y - 400
+  if keys_pressed['up'] or keys_pressed['down'] then
+    if keys_pressed['up']then
+      if player.pos.y > 0 then
+        -- player.pos.y=player.pos.y-speed*dt
+        -- force_y = force_y - 400
+        vy = vy - acc
+      
+      end
     end
+
+    if keys_pressed['down'] then
+      if player.pos.y < map.height*map.tileheight then
+        -- player.pos.y=player.pos.y+speed*dt
+        -- force_y = force_y + 400
+        vy = vy + acc
+      end
+    end
+  else
+    vy = lume.lerp(vy, 0, 0.2)
   end
 
-  if keys_pressed['down'] then
-    if player.pos.y<map.height*map.tileheight then
-      -- player.pos.y=player.pos.y+speed*dt
-      force_y = force_y + 400
+  if keys_pressed['left'] or keys_pressed['right'] then
+    if keys_pressed['left'] then
+      if player.pos.x > 0 then
+        -- player.pos.x=player.pos.x-speed*dt
+        -- force_x = force_x - 400
+        vx = vx - acc
+      end
     end
+
+    if keys_pressed['right'] then
+      if player.pos.x < map.width*map.tilewidth then
+        -- player.pos.x=player.pos.x+speed*dt
+        -- force_x = force_x + 400
+        vx = vx + acc
+      end
+    end
+  else
+    vx = lume.lerp(vx, 0, 0.2)
   end
 
-  if keys_pressed['left'] then
-    if player.pos.x>0 then
-      -- player.pos.x=player.pos.x-speed*dt
-      force_x = force_x - 400
-    end
-  end
+  vx = lume.clamp(vx, -140, 140)
+  vy = lume.clamp(vy, -140, 140)
 
-  if keys_pressed['right'] then
-    if player.pos.x<map.width*map.tilewidth then
-      -- player.pos.x=player.pos.x+speed*dt
-      force_x = force_x + 400
-    end
-  end
+  player.body:setLinearVelocity(vx, vy);
 
-	player.body:applyForce(force_x, force_y)
-	player.pos.x, player.pos.y = player.body:getWorldCenter()
+	-- player.body:applyForce(force_x, force_y)
+  player.pos.x, player.pos.y = player.body:getWorldCenter()
+  player.pos.y = player.pos.y + 2
 
   local dx = player.pos.x - camera.x
   local dy = player.pos.y - camera.y
@@ -214,9 +238,9 @@ function Game:update(dt)
     if object ~= nil then
 
       if object.x >= player.pos.x - player.pxw/2 and
-      object.x <= player.pos.x + player.pxw/2 and 
-      object.y >= player.pos.y - player.pxh/2 and
-      object.y <= player.pos.y + player.pxh/2 then
+          object.x <= player.pos.x + player.pxw/2 and 
+          object.y >= player.pos.y - player.pxh/2 and
+          object.y <= player.pos.y + player.pxh/2 then
 
         -- hack, we need to have a property to tell the proper level to advance to
         setLevel(last_level+1)
@@ -230,9 +254,9 @@ function Game:update(dt)
     if object ~= nil then
 
       if object.x+object.width >= player.pos.x - player.pxw/2 and
-      object.x <= player.pos.x + player.pxw/2 and 
-      object.y >= player.pos.y - player.pxh/2 and
-      object.y-object.height <= player.pos.y + player.pxh/2 then
+          object.x <= player.pos.x + player.pxw/2 and 
+          object.y >= player.pos.y - player.pxh/2 and
+          object.y-object.height <= player.pos.y + player.pxh/2 then
         print(object.width)
       
         if object.properties['spawnEnnemy'] ~= nil then
@@ -323,7 +347,10 @@ local function drawFn()
 
   love.graphics.setShader(shader_screen)
   strength = math.sin(love.timer.getTime()*2)
-  shader_screen:send("abberationVector", {strength*math.sin(love.timer.getTime()*7)/200, strength*math.sin(love.timer.getTime()*7)/200})
+  shader_screen:send("abberationVector", {
+    lume.clamp(strength * math.sin(love.timer.getTime() * 3) / 200, 0, 100), 
+    lume.clamp(strength * math.sin(love.timer.getTime() * 5) / 200, 0, 100)
+  })
 
   love.graphics.draw(cnv,0,0)
   
