@@ -98,7 +98,7 @@ end
 
 function CreditsState:draw()
     screen:draw(drawFn2) -- Additional arguments will be passed to drawFn.
-    love.graphics.scale(1)
+    love.graphics.scale(love.graphics.getWidth() / 640)
     love.graphics.draw(cnv,0,0)
     love.graphics.setColor(255,255,255,opacityTween)
     love.graphics.draw(Image.credits)

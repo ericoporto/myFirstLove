@@ -83,6 +83,9 @@ function StartScreen:enter()
   xpos_step = 8
   opacity_step = 2
   change_scene_once = true
+  love.audio.stop()
+  Music.ggj18_ambient:stop()
+  Music.ggj18_theme:play()
 end
 
 function StartScreen:update(dt)

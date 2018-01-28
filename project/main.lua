@@ -184,6 +184,10 @@ function love.load(arg)
     -- This color will used for fullscreen letterboxing when content doesn't fit exactly. (Optional)
     :setBackgroundColor(64, 64, 64)
 
+  if GAME_WIDTH == 320 then
+    screen:increaseScale()
+  end
+
   -- add all font as objects
 	font_16bfZX = love.graphics.newFont("fonts/16bfZX.ttf", 16)
 	font_HelvetiPixel = love.graphics.newFont("fonts/HelvetiPixel.ttf", 16)
@@ -304,6 +308,8 @@ function love.keypressed(key)
     screen:decreaseScale()
   elseif key == 'f11' then
     screen:toggleFullscreen()
+  elseif key == 'escape' then
+    goToGameState('StartScreen')
 	end	
 	
 	if     key == 'up' or key == 'w' then

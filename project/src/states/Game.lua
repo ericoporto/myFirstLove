@@ -83,32 +83,36 @@ local function setLevel(n)
   currentTransmissionId = nil
 
   if last_level==1 then 
-    Music.theme:stop()
+    Music.ggj18_theme:stop()
+    -- Music.theme:stop()
   elseif n==2 then
-    Music.theme:stop()
+    -- Music.theme:stop()
   elseif n==3 then
-    Music.theme:stop()
+    -- Music.theme:stop()
   elseif n==4 then
-    Music.theme:stop()
+    -- Music.theme:stop()
   elseif n==5 then
-    Music.theme:stop()
+    Music.ggj18_ambient:stop()
+    Music.ggj18_theme:stop()
+    Music.ggj18_theme:play()
   end
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-    Music.theme:play()
+    Music.ggj18_theme:stop()
+    Music.ggj18_ambient:play()
   elseif n==2 then
     map = sti("map/level1.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   elseif n==3 then
     map = sti("map/level2.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   elseif n==4 then
     map = sti("map/level3.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   elseif n==5 then
     map = sti("map/level4.lua", { "box2d" })
-    Music.theme:play()
+    -- Music.theme:play()
   end
     
   if map ~= nil then
@@ -181,11 +185,11 @@ local function setLevel(n)
         -- sayInBox(object.properties.msg)
         -- print (object.properties.msg)
         for i = 1, #aMessages do
-          print(aMessages[i])
+          -- print(aMessages[i])
           table.insert(transmissionMessages[object.properties.id], { seen = false, msg = aMessages[i] })
         end
         table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
-        print("\n")
+        -- print("\n")
       end
     end
 
@@ -203,43 +207,48 @@ local function setLevel(n)
         enemy.body:setFixedRotation(true)
         enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
         enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
+        enemy.body:setActive(false)
         enemy.update = function(target)
           if (screen_msg ~= nil and string.len(screen_msg) > 1) then
           else
             local vx, vy = enemy.body:getLinearVelocity()
-            if (enemy.pos.x > target.pos.x + 4) then
-              vx = vx - 10
-            elseif (enemy.pos.x < target.pos.x - 4) then
-              vx = vx + 10
-            end
-  
-            if (enemy.pos.y > target.pos.y + 4) then
-              vy = vy - 10
-            elseif (enemy.pos.x < target.pos.y - 4) then
-              vy = vy + 10
-            end
-            enemy.body:setLinearVelocity(vx, vy)
-            enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
-  
-            if (vx > 10) then
-              enemy.current_direction = 'right'
-              if vy > 10 then
-                enemy.current_direction = 'down_right'
-              elseif vy < -10 then
-                enemy.current_direction = 'up_right'
+            local acc = 10
+            local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
+            if (dst < 150) then
+              if (enemy.pos.x > target.pos.x + 6) then
+                vx = vx - acc
+              elseif (enemy.pos.x < target.pos.x - 6) then
+                vx = vx + acc
               end
-            elseif (vx < -10) then
-              enemy.current_direction = 'left'
-              if vy > 10 then
-                enemy.current_direction = 'down_left'
-              elseif vy < -10 then
-                enemy.current_direction = 'up_left'
+    
+              if (enemy.pos.y > target.pos.y + 6) then
+                vy = vy - acc
+              elseif (enemy.pos.x < target.pos.y - 6) then
+                vy = vy + acc
               end
-            else
-              if vy > 10 then
-                enemy.current_direction = 'down'
-              elseif vy < -10 then
-                enemy.current_direction = 'up'
+              enemy.body:setLinearVelocity(vx, vy)
+              enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
+    
+              if (vx > 10) then
+                enemy.current_direction = 'right'
+                if vy > 10 then
+                  enemy.current_direction = 'down_right'
+                elseif vy < -10 then
+                  enemy.current_direction = 'up_right'
+                end
+              elseif (vx < -10) then
+                enemy.current_direction = 'left'
+                if vy > 10 then
+                  enemy.current_direction = 'down_left'
+                elseif vy < -10 then
+                  enemy.current_direction = 'up_left'
+                end
+              else
+                if vy > 10 then
+                  enemy.current_direction = 'down'
+                elseif vy < -10 then
+                  enemy.current_direction = 'up'
+                end
               end
             end
           end
@@ -413,6 +422,7 @@ function Game:update(dt)
               playCutscene = not ent.active
               --print (currentTransmissionId .. " " .. ent.id)
               ent.active = true
+              ent.body:setActive(true)
             end
             if playCutscene then 
 
