@@ -23,13 +23,15 @@ local opacity_step
 local xpos_step
 local change_scene_once
 local cutscene_active 
+local waiter_last
 
 function Cutscene:enter()
   cutscene_active = true
   opacityTween = 0
-  xpos_step = 8
-  opacity_step = 4
+  xpos_step = 16
+  opacity_step = 8
   change_scene_once = true
+  waiter_last = 0
   cutscene_p1_xpos = 2*GAME_WIDTH
   cutscene_p2_xpos = 2*GAME_WIDTH
   cutscene_p3_xpos = 2*GAME_WIDTH
@@ -52,12 +54,16 @@ function Cutscene:update(dt)
         if cutscene_p3_xpos > xpos_step-1 then 
           cutscene_p3_xpos = cutscene_p3_xpos - xpos_step
         else
-
-          goToGameState('Game')
-          if change_scene_once then 
-            change_scene_once = false
-            cutscene_active = false
+          if waiter_last < 32 then
+            waiter_last = waiter_last +1
+          else
+            goToGameState('Game')
+            if change_scene_once then 
+              change_scene_once = false
+              cutscene_active = false
+            end
           end
+
       
         end
         
@@ -81,7 +87,7 @@ local function drawFn2()
     -- <Your drawing logic goes here.>
     -- love.graphics.draw(padLeft,a,2)
     love.graphics.setShader()
-    cnv = love.graphics.newCanvas(320,180)
+    cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
     cnv:renderTo(function()
       love.graphics.setColor(255,255,255,opacityTween)
       love.graphics.draw(Image.cutscene_01)

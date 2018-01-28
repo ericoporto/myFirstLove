@@ -110,8 +110,11 @@ function goToGameState(stateString)
   if stateString=='Game' then
     Gamestate.switch(Game)
   elseif stateString=='Cutscene' then
-   Gamestate.switch(Cutscene)
-
+    Gamestate.switch(Cutscene)
+  elseif stateString=='StartScreen' then
+    Gamestate.switch(StartScreen)
+  elseif stateString=='CreditsState' then
+    Gamestate.switch(CreditsState)
   end
 
 end
@@ -171,7 +174,7 @@ function love.load(arg)
     -- print "Require Sources:"
 	recursiveRequire("src")
 	Gamestate.registerEvents()
-	Gamestate.switch(Game)
+	Gamestate.switch(StartScreen)
 
   -- Set nearest-neighbour scaling. Calling this is optional.
   Terebi.initializeLoveDefaults()

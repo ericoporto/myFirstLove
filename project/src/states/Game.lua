@@ -75,7 +75,6 @@ local function sayInBox(msg)
 end
 
 local function setLevel(n)
-  is_accept_enable = true
   list_triggers = {}
   list_exit_points = {}
   list_enemySpawner = {}
@@ -223,7 +222,13 @@ local function setLevel(n)
   last_level = n
 end
 
+
 function Game:enter()
+  is_accept_enable = true
+
+end
+
+function Game:init()
   img_chara_agent = love.graphics.newImage('img/chara_agent.png')
   local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
 
@@ -359,10 +364,16 @@ function Game:update(dt)
     if t ~= nil then
       for i = 1, #t do
         if i == #t then
+          local playCutscene = false
           for j,ent in pairs(sprite_list) do
             if ent.type == 'enemy' and ent.id == currentTransmissionId then
-              print (currentTransmissionId .. " " .. ent.id)
+              playCutscene = not ent.active
+              --print (currentTransmissionId .. " " .. ent.id)
               ent.active = true
+            end
+            if playCutscene then 
+
+              goToGameState('Cutscene')
             end
           end
           -- break

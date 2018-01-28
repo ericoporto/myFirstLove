@@ -634,7 +634,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "0",
-            ["msg"] = "They know about your project! You have to go! Avoid The agents!",
+            ["msg"] = "Hey! & They know about your project! You have to go! Avoid The agents!",
             ["spawnEnnemy"] = 0,
             ["type"] = "trigger"
           }
