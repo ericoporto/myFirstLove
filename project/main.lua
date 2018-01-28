@@ -19,7 +19,7 @@ local Terebi    = requireLibrary("terebi")
 local Gamestate = requireLibrary("hump/gamestate")
 
 -- a variable for debug flags
-debug_mode = true
+debug_mode = false
 restart = false
 
 -- the library for Tiled map

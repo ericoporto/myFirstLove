@@ -65,11 +65,11 @@ end
 
 
 local function sayInBox(msg)
-  screen_msg_x = 66
+  screen_msg_x = 70
   screen_msg_y = 103
-  screen_msg_w = 187
-  screen_msg_h = 41
-  screen_msg_txt_x = 66 
+  screen_msg_w = 184
+  screen_msg_h = 60
+  screen_msg_txt_x = 70 
   screen_msg_txt_y = 103 
   screen_msg = msg
 end
@@ -456,7 +456,7 @@ function Game:update(dt)
 
 end
 
-
+local ui_texto_y = -600
 local function drawFn()
   -- <Your drawing logic goes here.>
   -- love.graphics.draw(padLeft,a,2)
@@ -501,21 +501,18 @@ local function drawFn()
       local t_limit = screen_msg_w-2
       local t_align = 'left'
       love.graphics.setColor( 255, 255, 255, 255 )
-      love.graphics.draw(Image.ui_texto,0,0)
+      ui_texto_y = lume.lerp(ui_texto_y, 0, .18)
+      love.graphics.draw(Image.ui_texto,0,ui_texto_y)
       love.graphics.setColor(0,0,0,128)
 
       -- love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
       love.graphics.setFont(font_Verdana2)
-      love.graphics.printf(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y-1, t_limit, t_align)
-      love.graphics.printf(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y+1, t_limit, t_align)
-      love.graphics.printf(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y, t_limit, t_align)
-      love.graphics.printf(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y, t_limit, t_align)
-      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y+1, t_limit, t_align)
-      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y-1, t_limit, t_align)
       love.graphics.setColor( 255, 255, 255, 255 )
-      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y+ui_texto_y, t_limit, t_align)
     else
       --currentTransmissionId = nil
+      ui_texto_y = lume.lerp(ui_texto_y, -600, .2)
+      love.graphics.draw(Image.ui_texto,0,ui_texto_y)
     end
 
     -- zuera
