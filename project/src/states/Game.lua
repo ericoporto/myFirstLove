@@ -27,18 +27,26 @@ local player
 local last_level
 
 local list_triggers = {}
+local list_exit_points = {}
 local list_enemySpawner = {}
 local sprite_list = {}
 
 function setLevel(n)
   if last_level==1 then 
     Music.theme:stop()
+  elseif n==2 then
+    Music.theme:stop()
   end
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-
+    Music.theme:play()
+  elseif n==2 then
+    map = sti("map/level2.lua", { "box2d" })
+    Music.theme:play()
+  end
     
+  if map ~= nil then
     -- Prepare physics world
     world = love.physics.newWorld(0, 0)
 
@@ -65,6 +73,15 @@ function setLevel(n)
         end
       end
   
+    end
+
+
+    -- Get exit points of the map
+    for k, object in pairs(map.objects) do
+      if object.name == "Exit" then
+        table.insert(list_exit_points, object)
+          break
+        end
     end
   
     local spawn_point
@@ -106,7 +123,6 @@ function setLevel(n)
   
     camera = Camera(player.pos.x, player.pos.y)
   
-    Music.theme:play()
   end
 
   last_level = n
@@ -191,6 +207,23 @@ function Game:update(dt)
   map:update(dt)
   camera:move(dx/2, dy/2)
 
+
+  --     this function checks for all exit points and go to 
+  -- next level then when player is on top
+  for k, object in pairs(list_exit_points) do
+    if object ~= nil then
+
+      if object.x >= player.pos.x - player.pxw/2 and
+      object.x <= player.pos.x + player.pxw/2 and 
+      object.y >= player.pos.y - player.pxh/2 and
+      object.y <= player.pos.y + player.pxh/2 then
+
+        -- hack, we need to have a property to tell the proper level to advance to
+        setLevel(last_level+1)
+
+      end 
+    end 
+  end
 
   -- this function checks for all triggers and triger then when player is on top
   for k, object in pairs(list_triggers) do
