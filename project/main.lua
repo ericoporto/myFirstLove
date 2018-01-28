@@ -106,6 +106,16 @@ function rnd()
 	return math.random()
 end
 
+function goToGameState(stateString)
+  if stateString=='Game' then
+    Gamestate.switch(Game)
+  elseif stateString=='Cutscene' then
+   Gamestate.switch(Cutscene)
+
+  end
+
+end
+
 --[[
 require("tests.tests")
 --]]

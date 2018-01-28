@@ -9,7 +9,7 @@ local Camera        = requireLibrary("hump.camera")
 local anim8         = requireLibrary("anim8")
 --local Timer         = requireLibrary("knife.timer")
 local Chain         = requireLibrary("knife.chain")
-local tween         = Timer.tween
+local Tween         = Timer.tween
 local Character     = require 'src/entities/Character'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
@@ -48,7 +48,7 @@ local function f_isAcceptPressed()
   if  is_accept_enable and keys_pressed['buttona'] then 
     is_accept_enable = false
 
-    print(keys_pressed['buttona'])
+   -- print(keys_pressed['buttona'])
     -- prevents player from skipping all text by accident
     Timer.after(0.6, function()
       is_accept_enable = true
@@ -72,6 +72,10 @@ end
 
 local function setLevel(n)
   is_accept_enable = true
+  list_triggers = {}
+  list_exit_points = {}
+  list_enemySpawner = {}
+  sprite_list = {}
 
   if last_level==1 then 
     Music.theme:stop()
@@ -81,10 +85,10 @@ local function setLevel(n)
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
-    --Music.theme:play()
+    Music.theme:play()
   elseif n==2 then
     map = sti("map/level2.lua", { "box2d" })
-    --Music.theme:play()
+    Music.theme:play()
   end
     
   if map ~= nil then
@@ -163,6 +167,7 @@ local function setLevel(n)
         object.properties.id = tonumber(object.properties.id )
         -- table.insert(list_enemySpawner,object)
         local enemy = Character.init('enemy','img/chara_agent.png',object.x,object.y)
+        enemy.id = object.properties.id
         enemy.active = false
         enemy.update = function(target)
           if (enemy.pos.x > target.pos.x + 4) then
@@ -331,10 +336,12 @@ function Game:update(dt)
       object.x <= player.pos.x + player.pxw/2 and 
       object.y >= player.pos.y - player.pxh/2 and
       object.y-object.height <= player.pos.y + player.pxh/2 then
+
+        local spawn_enemy
         Chain(
           function (go)
-              sayInBox(object.properties.msg)
-              WaitForButton:init(f_isAcceptPressed, go)
+            sayInBox(object.properties.msg)
+            WaitForButton:init(f_isAcceptPressed, go)
           end,
           function (go)
             sayInBox('showing splash screen')
@@ -352,12 +359,14 @@ function Game:update(dt)
             sayInBox()
           end
         )()
+
+
       
         if object.properties['spawnEnnemy'] ~= nil then
           -- print(object.properties.spawnEnnemy)
 
           for j,ent in pairs(sprite_list) do
-            if ent.type == 'enemy' then
+            if ent.type == 'enemy' and ent.id == object.properties['spawnEnnemy'] then
               ent.active = true
             end
             -- enemy.current_direction = 'down'
@@ -469,3 +478,5 @@ function Game:draw()
 
 
 end
+
+return Game
