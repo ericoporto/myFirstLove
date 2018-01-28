@@ -11,6 +11,7 @@ local anim8         = requireLibrary("anim8")
 local Chain         = requireLibrary("knife.chain")
 local Tween         = Timer.tween
 local Character     = require 'src/entities/Character'
+local Item     = require 'src/entities/Item'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
 local map
@@ -191,6 +192,19 @@ local function setLevel(n)
         table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
         -- print("\n")
       end
+    end
+
+
+    -- Get items object
+    for k, object in pairs(map.objects) do
+      if object.name == "itemSpawner" then
+        if object.properties.item == 'radio' then
+          local radio = Item.init('radio','img/chara_radio.png',object.x,object.y)
+          table.insert(sprite_list,radio)
+          object = nil 
+          map.objects[k] = nil
+        end
+      end 
     end
 
 
@@ -390,6 +404,26 @@ function Game:update(dt)
 
   map:update(dt)
   camera:move(dx/2, dy/2)
+
+
+  -- lets check collision with items
+  for k, object in pairs(sprite_list) do
+    if object ~= nil and object.type == 'radio' then
+
+      if object.pos.x >= player.pos.x - player.pxw/2 and
+        object.pos.x <= player.pos.x + player.pxw/2 and 
+        object.pos.y >= player.pos.y - player.pxh/2 and
+        object.pos.y <= player.pos.y + player.pxh/2 then
+
+        -- hack, we need to have a property to tell the proper level to advance to
+        object = nil
+        sprite_list[k] = nil
+
+        goToGameState('Cutscene')
+
+      end 
+    end 
+  end
 
 
   --     this function checks for all exit points and go to 
