@@ -65,8 +65,8 @@ local function sayInBox(msg)
   screen_msg_y = 2*GAME_HEIGHT/3
   screen_msg_w = 14*GAME_WIDTH/16
   screen_msg_h = GAME_HEIGHT/4
-  screen_msg_txt_x = screen_msg_x + 16
-  screen_msg_txt_y = screen_msg_y + 16
+  screen_msg_txt_x = screen_msg_x + 8
+  screen_msg_txt_y = screen_msg_y + 4
   screen_msg = msg
 end
 
@@ -304,9 +304,13 @@ function Game:update(dt)
       object.x <= player.pos.x + player.pxw/2 and 
       object.y >= player.pos.y - player.pxh/2 and
       object.y-object.height <= player.pos.y + player.pxh/2 then
+
+        
+        
+
         Chain(
           function (go)
-              sayInBox('fading in')
+              sayInBox(object.properties.msg)
               WaitForButton:init(f_isAcceptPressed, go)
           end,
           function (go)
@@ -400,17 +404,19 @@ local function drawFn()
     -- mapa
 
     if screen_msg ~= nil and string.len(screen_msg)>1 then
+      local t_limit = screen_msg_w-16
+      local t_align = 'left'
       love.graphics.setColor(0,0,0,128)
       love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
       love.graphics.setFont(font_Verdana2)
-      love.graphics.print(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y-1)
-      love.graphics.print(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y+1)
-      love.graphics.print(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y)
-      love.graphics.print(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y)
-      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y+1)
-      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y-1)
+      love.graphics.printf(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y-1, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y+1, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x-1,screen_msg_txt_y, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x+1,screen_msg_txt_y, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y+1, t_limit, t_align)
+      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y-1, t_limit, t_align)
       love.graphics.setColor( 255, 255, 255, 255 )
-      love.graphics.print(screen_msg,screen_msg_txt_x,screen_msg_txt_y)
+      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y, t_limit, t_align)
     end
 
     -- zuera

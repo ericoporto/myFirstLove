@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.1" orientation="orthogonal" renderorder="right-down" width="22" height="17" tilewidth="16" tileheight="16" infinite="0" nextobjectid="16">
+<map version="1.0" tiledversion="2018.01.23" orientation="orthogonal" renderorder="right-down" width="22" height="17" tilewidth="16" tileheight="16" infinite="0" nextobjectid="16">
  <tileset firstgid="1" source="escritorio.tsx"/>
  <tileset firstgid="881" source="objetos.tsx"/>
  <layer name="tileLayerGround" width="22" height="17">
@@ -65,7 +65,7 @@
     <property name="type" value="trigger"/>
    </properties>
   </object>
-  <object id="6" name="Player" gid="180" x="34" y="158.667" width="16" height="16"/>
+  <object id="6" name="Player" gid="180" x="28.6667" y="158.667" width="16" height="16"/>
   <object id="7" name="ennemySpawner" gid="220" x="167.333" y="64.6667" width="16" height="16">
    <properties>
     <property name="id" type="int" value="0"/>
@@ -89,7 +89,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,386,545,545,545,545,384,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,545,545,545,545,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
