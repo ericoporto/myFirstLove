@@ -86,13 +86,28 @@ local function setLevel(n)
     Music.theme:stop()
   elseif n==2 then
     Music.theme:stop()
+  elseif n==3 then
+    Music.theme:stop()
+  elseif n==4 then
+    Music.theme:stop()
+  elseif n==5 then
+    Music.theme:stop()
   end
 
   if n==1 then
     map = sti("map/level0.lua", { "box2d" })
     Music.theme:play()
   elseif n==2 then
+    map = sti("map/level1.lua", { "box2d" })
+    Music.theme:play()
+  elseif n==3 then
     map = sti("map/level2.lua", { "box2d" })
+    Music.theme:play()
+  elseif n==4 then
+    map = sti("map/level3.lua", { "box2d" })
+    Music.theme:play()
+  elseif n==5 then
+    map = sti("map/level4.lua", { "box2d" })
     Music.theme:play()
   end
     
