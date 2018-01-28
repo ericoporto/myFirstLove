@@ -58,7 +58,7 @@ function setLevel(n)
   
       for _,spr in pairs(sprite_list) do
         spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
-        if spr.body ~= nil then 
+        if debug_mode and spr.body ~= nil then 
           love.graphics.setColor(255,0,0)
           love.graphics.polygon("line",spr.body:getWorldPoints(spr.shape:getPoints()))
           love.graphics.setColor(255,255,255)
@@ -226,7 +226,8 @@ function Game:update(dt)
 
   end
 
-  if player.pos.x>400 then
+  if restart == true then
+    restart = false
     setLevel(1)
   end
 
@@ -264,7 +265,9 @@ local function drawFn()
 
 
     map:draw(-tx, -ty, camera.scale, camera.scale)
-    map:box2d_draw(-tx, -ty, camera.scale, camera.scale)
+    if debug_mode then
+      map:box2d_draw(-tx, -ty, camera.scale, camera.scale)
+    end
 
     camera:draw(function()
         

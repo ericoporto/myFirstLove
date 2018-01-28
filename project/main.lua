@@ -18,6 +18,10 @@ local slam      = requireLibrary("slam")
 local Terebi    = requireLibrary("terebi")
 local Gamestate = requireLibrary("hump/gamestate")
 
+-- a variable for debug flags
+debug_mode = true
+restart = false
+
 -- the library for Tiled map
 sti = requireLibrary("sti")
 
@@ -275,8 +279,10 @@ end
 
 -- Input
 function love.keypressed(key)
-  if     key == '' then
-
+  if     key == 'f1' then
+    debug_mode = debug_mode == false
+  elseif key == 'f5' then
+    restart = true
   end
 
   if     key == '=' or key == '+' then
@@ -347,7 +353,20 @@ end
 
 function love.joystickpressed(joystick, btn)
 
-	print(btn)
+  if debug_mode then 
+    print(btn)	
+  end
+  
+
+	if     tonumber(btn) == 3 then
+		keys_pressed['buttonx'] = true
+	elseif tonumber(btn) == 1 then
+		keys_pressed['buttona'] = true
+	elseif tonumber(btn) == 4 then
+		keys_pressed['buttony'] = true
+	elseif tonumber(btn) == 2 then
+		keys_pressed['buttonb'] = true
+	end
 end
 
 function love.joystickreleased(joystick, btn)
