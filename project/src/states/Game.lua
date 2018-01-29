@@ -48,6 +48,8 @@ local transmissionMessages = {}
 local currentTransmissionId = nil
 local nextTransmissionRequest = false
 
+local agent_ray_of_seeing = 160
+
 local is_accept_enable = true
 local function f_isAcceptPressed()
   if  is_accept_enable and keys_pressed['buttona'] then 
@@ -152,7 +154,7 @@ local function setLevel(n)
             love.graphics.circle("line", x, y, 4)
           end
           love.graphics.setColor(20, 180, 255)
-          love.graphics.circle("line", spr.pos.x, spr.pos.y, 80)
+          love.graphics.circle("line", spr.pos.x, spr.pos.y, agent_ray_of_seeing)
           love.graphics.setColor(255,255,255)
         end
       end
@@ -226,9 +228,9 @@ local function setLevel(n)
           if (screen_msg ~= nil and string.len(screen_msg) > 1) then
           else
             local vx, vy = enemy.body:getLinearVelocity()
-            local acc = 10
+            local acc = 12
             local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
-            if (dst < 150) then
+            if (dst < agent_ray_of_seeing) then
               if (enemy.pos.x > target.pos.x + 6) then
                 vx = vx - acc
               elseif (enemy.pos.x < target.pos.x - 6) then
@@ -237,7 +239,7 @@ local function setLevel(n)
     
               if (enemy.pos.y > target.pos.y + 6) then
                 vy = vy - acc
-              elseif (enemy.pos.x < target.pos.y - 6) then
+              elseif (enemy.pos.y < target.pos.y - 6) then
                 vy = vy + acc
               end
               enemy.body:setLinearVelocity(vx, vy)
