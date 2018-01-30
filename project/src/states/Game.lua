@@ -224,11 +224,17 @@ local function setLevel(n)
         enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
         enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
         enemy.body:setActive(false)
+        enemy.pursuitacc = 0
         enemy.update = function(target)
           if (screen_msg ~= nil and string.len(screen_msg) > 1) then
           else
             local vx, vy = enemy.body:getLinearVelocity()
-            local acc = 12
+            local max_acc = 12
+            local acc = enemy.pursuitacc
+            if enemy.pursuitacc<max_acc then
+              enemy.pursuitacc = enemy.pursuitacc + 1
+            end
+
             local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
             if (dst < agent_ray_of_seeing) then
               if (enemy.pos.x > target.pos.x + 6) then
@@ -260,6 +266,10 @@ local function setLevel(n)
                   enemy.current_direction = 'up_left'
                 end
               else
+                if enemy.pursuitacc > 1 then
+                  enemy.pursuitacc = enemy.pursuitacc - 1
+                end
+
                 if vy > 10 then
                   enemy.current_direction = 'down'
                 elseif vy < -10 then
