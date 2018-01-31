@@ -25,7 +25,17 @@ local change_scene_once
 local cutscene_active 
 local waiter_last
 
+-- only say fire ONCE
+local has_said_fire_once
+function sayFire()
+  if has_said_fire_once ~= true then
+    Sfx.GGJ18_cutscene_sniper_fire:play()
+  end
+  has_said_fire_once = true
+end
+
 function Cutscene:enter()
+  has_said_fire_once = false
   cutscene_active = true
   opacityTween = 0
   xpos_step = 16
@@ -35,7 +45,6 @@ function Cutscene:enter()
   cutscene_p1_xpos = 2*GAME_WIDTH
   cutscene_p2_xpos = 2*GAME_WIDTH
   cutscene_p3_xpos = 2*GAME_WIDTH
-  Sfx.GGJ18_cutscene_sniper_fire:play()
 end
 
 function Cutscene:update(dt)
@@ -46,6 +55,10 @@ function Cutscene:update(dt)
   if opacityTween<256-opacity_step then
     opacityTween = opacityTween + opacity_step
   else 
+    if cutscene_p1_xpos <= GAME_WIDTH then
+      sayFire()
+    end
+
     if cutscene_p1_xpos > xpos_step-1 then 
       cutscene_p1_xpos = cutscene_p1_xpos - xpos_step
     else
