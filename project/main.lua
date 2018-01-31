@@ -106,7 +106,29 @@ function rnd()
 	return math.random()
 end
 
+local screenShotFromLastState
+
+local function saveScreenShotFromLastState()
+  local scrn = love.graphics.newScreenshot()
+	local canvas = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT) -- make a canvas that is the proper dimensions
+	canvas:renderTo(function()
+		love.graphics.setColor(255,255,255,255) -- set colour to white, i.e. draw normally
+		love.graphics.draw(love.graphics.newImage(scrn),0,0, -- draw the screenshot at 0,0
+		0, -- 0 rotation
+		canvas:getWidth() / love.graphics.getWidth(), -- x scale
+		canvas:getHeight() / love.graphics.getHeight() -- y scale
+		)
+  end)
+  -- this resizes the canvas get's it's data and put's in an image
+  screenShotFromLastState = love.graphics.newImage(canvas:newImageData())
+end
+
+function drawLastStateScreenshot()
+  love.graphics.draw(screenShotFromLastState)
+end
+
 function goToGameState(stateString)
+  saveScreenShotFromLastState()
   if stateString=='Game' then
     Gamestate.switch(Game)
   elseif stateString=='Cutscene' then

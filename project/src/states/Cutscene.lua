@@ -36,7 +36,6 @@ end
 
 function Cutscene:enter()
   has_said_fire_once = false
-  cutscene_active = true
   opacityTween = 0
   xpos_step = 16
   opacity_step = 8
@@ -48,10 +47,6 @@ function Cutscene:enter()
 end
 
 function Cutscene:update(dt)
-  if cutscene_active ~= true then
-    return false
-  end
-
   if opacityTween<256-opacity_step then
     opacityTween = opacityTween + opacity_step
   else 
@@ -74,7 +69,6 @@ function Cutscene:update(dt)
             goToGameState('Game')
             if change_scene_once then 
               change_scene_once = false
-              cutscene_active = false
             end
           end
 
@@ -95,14 +89,13 @@ end
 
 
 local function drawFn2()
-  if cutscene_active ~= true then
-    return false
-  end
     -- <Your drawing logic goes here.>
     -- love.graphics.draw(padLeft,a,2)
     love.graphics.setShader()
     cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
     cnv:renderTo(function()
+      love.graphics.setColor(255,255,255,255)
+      drawLastStateScreenshot()
       love.graphics.setColor(255,255,255,opacityTween)
       love.graphics.draw(Image.cutscene_01)
       love.graphics.draw(Image.cutscene_01_p1,cutscene_p1_xpos)
@@ -121,11 +114,6 @@ local function drawFn2()
 end
 
 function Cutscene:draw()
-  if cutscene_active ~= true then
-    return false
-  end
-
-
     screen:draw(drawFn2) -- Additional arguments will be passed to drawFn.
 
 
