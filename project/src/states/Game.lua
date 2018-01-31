@@ -50,12 +50,17 @@ local nextTransmissionRequest = false
 
 local agent_ray_of_seeing = 160
 
+
+-- Prevents the player from skipping too much by disabling the 
+-- Accept button after it's checked
 local is_accept_enable = true
 local function f_isAcceptPressed()
   if  is_accept_enable and keys_pressed['buttona'] then 
     is_accept_enable = false
 
-   -- print(keys_pressed['buttona'])
+    -- we can remove buttona if claiming the event is necessary
+    --keys_pressed['buttona'] = nil
+
     -- prevents player from skipping all text by accident
     Timer.after(0.6, function()
       is_accept_enable = true
@@ -66,7 +71,12 @@ local function f_isAcceptPressed()
   end
 end
 
+-- after Accept is pressed, the passed function is called
+local function waitAccept(fn)
+  WaitForButton:init(f_isAcceptPressed, fn)
+end
 
+-- shows text on screen using the dialog box
 local function sayInBox(msg)
   screen_msg_x = 70
   screen_msg_y = 103
@@ -77,6 +87,58 @@ local function sayInBox(msg)
   screen_msg = msg
 end
 
+
+-- every local function we want to expose to the tiled lua script
+-- MUST be in Action table
+local Action = {}
+
+-- shows a dialog, and executes the next function after a period 
+-- of time
+function Action.timedSay (seconds, text)
+  return function (go)
+      sayInBox(text)
+      Timer.after(seconds, go)
+  end
+end
+
+-- shows a dialog, and after Accept is pressed, runs the next function
+-- in chain
+function Action.Say ( text)
+  return function (go)
+      sayInBox(text)
+      waitAccept(go)
+  end
+end
+
+-- close dialog from screen, needs to be called after a Say to remove it
+-- from screen.
+function Action.closeSay ()
+  return function (go)
+      sayInBox()
+      go()
+  end
+end
+
+-- a helper function to run a lua script written as string, using Chain
+-- Chain allows passing the next function as callback, enabling that the
+-- the next function can be executed from Asynchronous calls, but
+-- hides this complexity
+local function runLuaScriptInChain(scriptAsString)
+
+  local context = {Chain = Chain,
+    timedSay = Action.timedSay,
+    closeSay = Action.closeSay,
+    Say = Action.Say,
+  }
+
+  setmetatable(context, { __index = _G })
+  local aLuaFunction = loadstring('Chain(	' .. scriptAsString .. ')()')
+  setfenv(aLuaFunction, context)
+  assert(aLuaFunction)()
+end
+
+
+-- changes the level for level n
 local function setLevel(n)
   list_triggers = {}
   list_exit_points = {}
@@ -84,6 +146,8 @@ local function setLevel(n)
   sprite_list = {}
   transmissionMessages = {}
   currentTransmissionId = nil
+
+  map = sti("map/level" .. n .. ".lua", { "box2d" })
 
   if last_level==1 then 
     Music.ggj18_theme:stop()
@@ -101,20 +165,15 @@ local function setLevel(n)
   end
 
   if n==1 then
-    map = sti("map/level0.lua", { "box2d" })
     Music.ggj18_theme:stop()
     Music.ggj18_ambient:play()
   elseif n==2 then
-    map = sti("map/level1.lua", { "box2d" })
     -- Music.theme:play()
   elseif n==3 then
-    map = sti("map/level2.lua", { "box2d" })
     -- Music.theme:play()
   elseif n==4 then
-    map = sti("map/level3.lua", { "box2d" })
     -- Music.theme:play()
   elseif n==5 then
-    map = sti("map/level4.lua", { "box2d" })
     -- Music.theme:play()
   end
     
@@ -181,18 +240,13 @@ local function setLevel(n)
     for k, object in pairs(map.objects) do
       if object.properties['type'] == "trigger" and object.properties.msg ~= nil then
         table.insert(list_triggers,object)
-        -- transmissionMessages[k] = {}
         object.properties.id = tonumber(object.properties.spawnEnnemy )
         transmissionMessages[object.properties.id] = {}
         local aMessages = lume.splitStr(object.properties.msg, "&")
-        -- sayInBox(object.properties.msg)
-        -- print (object.properties.msg)
         for i = 1, #aMessages do
-          -- print(aMessages[i])
           table.insert(transmissionMessages[object.properties.id], { seen = false, msg = aMessages[i] })
         end
         table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
-        -- print("\n")
       end
     end
 
@@ -301,23 +355,26 @@ local function setLevel(n)
 end
 
 
+-- everytime we enter this gamestate, we do this
 function Game:enter()
   is_accept_enable = true
 
 end
 
+-- just called the first time we enter this state
 function Game:init()
   img_chara_agent = love.graphics.newImage('img/chara_agent.png')
   local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
 
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
 
-  setLevel(1)
+  -- got to the first level
+  setLevel(0)
 end
 
 
 function Game:update(dt)
-  -- Make sure to do this or nothign will work!
+  -- Make sure to do this or nothing will work!
   -- updates Timer, pay attention to use dot instead of collon
   Timer.update(dt)
 
@@ -414,7 +471,13 @@ function Game:update(dt)
     spr.current_animation[spr.current_direction]:update(dt)
   end
 
+  -- let's update the map, this ensures any in map animations happen
   map:update(dt)
+
+  -- let's move the camera to the difference between camera and player
+  -- this is smoothed by only moving the camera to half the difference
+  -- so if next frame the player is in the same place, we get a nice 
+  -- 1/x like tweening
   camera:move(dx/2, dy/2)
 
 
@@ -427,10 +490,10 @@ function Game:update(dt)
         object.pos.y >= player.pos.y - player.pxh/2 and
         object.pos.y <= player.pos.y + player.pxh/2 then
 
-        -- hack, we need to have a property to tell the proper level to advance to
         object = nil
         sprite_list[k] = nil
 
+        -- this is where we need to add the item radio to the inventory
         goToGameState('Cutscene')
 
       end 
@@ -449,12 +512,16 @@ function Game:update(dt)
         object.y <= player.pos.y + player.pxh/2 then
 
         -- hack, we need to have a property to tell the proper level to advance to
+        -- we don't have, so we just advance to the next level
         setLevel(last_level+1)
 
       end 
     end 
   end
 
+  -- this is the what makes the messages work! 
+  -- this block of code can be removed if we refactor the game maps to just
+  -- have lua functions! (using Say('string') commands)
   if currentTransmissionId ~= nil then
     local i = 1
     local t = transmissionMessages[currentTransmissionId]
@@ -498,7 +565,14 @@ function Game:update(dt)
           object.y-object.height <= player.pos.y + player.pxh / 2 then
         
         currentTransmissionId = tonumber(object.properties.id)
-      -- print('test')
+      
+        -- I would like to remove the previous code and have
+        --     runLuaScriptInChain(object.properties.runLuaScript)
+        -- doing so would make this block of code repeat all the time.
+        -- this can be solved by killing this object:
+        --     object = nil	
+        --     list_triggers[k]=nil
+
         break
       end
     end
@@ -515,12 +589,13 @@ end
 local ui_texto_y = -600
 local function drawFn()
   -- <Your drawing logic goes here.>
-  -- love.graphics.draw(padLeft,a,2)
+  -- let's disable the shader before drawing everything
   love.graphics.setShader()
   cnv:renderTo(function()
     love.graphics.clear(0,0,0,255)
 
-
+    -- let's first calculate map translation for the
+    -- hump camera to work with sti
     local tx = camera.x - GAME_WIDTH / 2
     local ty = camera.y - GAME_HEIGHT / 2
 
@@ -540,50 +615,53 @@ local function drawFn()
     tx = math.floor(tx)
     ty = math.floor(ty)
 
-    -- print("tx = " , tostring(tx) , "; ty = " , tostring(ty))
-
-
+    -- now draw the map
     map:draw(-tx, -ty, camera.scale, camera.scale)
     if debug_mode then
+      -- this draws the box2d interpretation of collisions 
       map:box2d_draw(-tx, -ty, camera.scale, camera.scale)
     end
 
     camera:draw(function()
-        
+        -- if we had to draw something allign with the camera,
+        -- but not in the map, we would need to do it here
+        -- right now this is empty
     end)
-    -- mapa
 
+    -- the screen msg is only drawn if it exists!
     if screen_msg ~= nil and string.len(screen_msg)>1 then
       local t_limit = screen_msg_w-2
       local t_align = 'left'
+      -- let's guarantee the background is drawn with proper alpha
       love.graphics.setColor( 255, 255, 255, 255 )
+
+      -- we will tween it
       ui_texto_y = lume.lerp(ui_texto_y, 0, .18)
       love.graphics.draw(Image.ui_texto,0,ui_texto_y)
-      love.graphics.setColor(0,0,0,128)
 
-      -- love.graphics.rectangle('fill',screen_msg_x,screen_msg_y,screen_msg_w,screen_msg_h, 4,4,6)
+      -- now we draw the text on top of the dialog background
       love.graphics.setFont(font_Verdana2)
       love.graphics.setColor( 255, 255, 255, 255 )
       love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y+ui_texto_y, t_limit, t_align)
     else
-      --currentTransmissionId = nil
+      -- if we have no text, we just hide the dialog
       ui_texto_y = lume.lerp(ui_texto_y, -600, .2)
       love.graphics.draw(Image.ui_texto,0,ui_texto_y)
     end
 
-    -- zuera
+    
     if debug_mode then
+      -- let's draw additional debug info
       love.graphics.setColor( 255, 255, 255, 255 )
       love.graphics.setFont(font_Verdana2)
       love.graphics.print("DEBUG MODE",32,32)
       love.graphics.print("player x="..player.pos.x..", y="..player.pos.y,32,8)
     end
     
-    -- love.graphics.print("O Papagaio come milho.\nperiquito leva a fama.\nCantam uns e choram outros\nTriste sina de quem ama.", 80+20*b, 25)
-    -- love.graphics.rectangle("fill", 30+12*b, 30+15*b, 16, 32 )
   end)
 
-
+  -- now we enable the shader, this will translate pixel position and colors once
+  -- the next draw is called
   love.graphics.setShader(shader_screen)
   strength = math.sin(love.timer.getTime()*2)
   shader_screen:send("abberationVector", {
@@ -591,6 +669,7 @@ local function drawFn()
     lume.clamp(strength * math.sin(love.timer.getTime() * 5) / 200, 0, 100)
   })
 
+  -- draw everything on screen
   love.graphics.draw(cnv,0,0)
   
 end
