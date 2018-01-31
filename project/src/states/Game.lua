@@ -10,8 +10,9 @@ local anim8         = requireLibrary("anim8")
 --local Timer         = requireLibrary("knife.timer")
 local Chain         = requireLibrary("knife.chain")
 local Tween         = Timer.tween
-local Character     = require 'src/entities/Character'
-local Item     = require 'src/entities/Item'
+local Character     = require 'src.entities.Character'
+local Item          = require 'src.entities.Item'
+local Inventory     = require 'src.entities.Inventory'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
 local map
@@ -49,6 +50,7 @@ local currentTransmissionId = nil
 local nextTransmissionRequest = false
 
 local agent_ray_of_seeing = 160
+
 
 
 -- Prevents the player from skipping too much by disabling the 
@@ -343,6 +345,13 @@ local function setLevel(n)
     player.body:setFixedRotation(true)
     player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
     player.fixture = love.physics.newFixture(player.body, player.shape)
+    player.inventory = Inventory()
+    player.inventory.addedItemCallback = function(self,itemName)
+      -- an item was added!
+      if debug_mode then 
+        print(self:countItem(itemName))
+      end
+    end
 
     table.insert(sprite_list,player)
   
@@ -490,11 +499,13 @@ function Game:update(dt)
         object.pos.y >= player.pos.y - player.pxh/2 and
         object.pos.y <= player.pos.y + player.pxh/2 then
 
+          player.inventory:addItem('radio')
+
         object = nil
         sprite_list[k] = nil
 
         -- this is where we need to add the item radio to the inventory
-        goToGameState('Cutscene')
+        --goToGameState('Cutscene')
 
       end 
     end 
