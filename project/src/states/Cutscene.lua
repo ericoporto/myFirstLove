@@ -37,8 +37,8 @@ end
 function Cutscene:enter()
   has_said_fire_once = false
   opacityTween = 0
-  xpos_step = 16
-  opacity_step = 8
+  xpos_step = 32
+  opacity_step = 32
   change_scene_once = true
   waiter_last = 0
   cutscene_p1_xpos = 2*GAME_WIDTH

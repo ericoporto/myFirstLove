@@ -5,9 +5,9 @@ os TO-DOs do projeto para o final
 
 - [x] adicionar uma variavel pra contar os radios e somar 1 pra cada radio coletado (print console se debug ativado)
 
-- [ ] adicionar uma ui pra desenhar o número de radios coletados não usados
+- [x] adicionar uma ui pra desenhar o número de radios coletados não usados
 
-- [ ] adicionar um trigger pra se nao estiver em diálogo e se radio>1, fazer radio -1 e chamar cutscene
+- [x] adicionar um trigger pra se nao estiver em diálogo e se radio>1, fazer radio -1 e chamar cutscene
 
 - [ ] adicionar uma função pra matar os agentes num raio
 

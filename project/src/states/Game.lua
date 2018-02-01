@@ -61,7 +61,7 @@ local function f_isAcceptPressed()
     is_accept_enable = false
 
     -- we can remove buttona if claiming the event is necessary
-    --keys_pressed['buttona'] = nil
+    keys_pressed['buttona'] = nil
 
     -- prevents player from skipping all text by accident
     Timer.after(0.6, function()
@@ -137,6 +137,44 @@ local function runLuaScriptInChain(scriptAsString)
   local aLuaFunction = loadstring('Chain(	' .. scriptAsString .. ')()')
   setfenv(aLuaFunction, context)
   assert(aLuaFunction)()
+end
+
+-- initialize player Character 
+local function initializePlayerCharacter(spawnX,spawnY)
+  local player = Character.init('player','img/chara_player.png',spawnX,spawnY)
+  player.body = love.physics.newBody(world, player.pos.x, player.pos.y, "dynamic")
+  player.body:setLinearDamping(10)
+  player.body:setFixedRotation(true)
+  player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
+  player.fixture = love.physics.newFixture(player.body, player.shape)
+  player.inventory = Inventory()
+  player.inventory:defineItem('radio',
+  -- draw function
+  function(self)
+    for radio_i =1, self.count() do
+      love.graphics.draw(Image.radio_ui_icon,radio_i*(Image.radio_ui_icon:getWidth()+2),6)
+    end
+  end,
+  -- update function
+  function(self,dt)
+        -- use item if available
+    if f_isAcceptPressed() then
+      goToGameState('Cutscene')
+      self.remove()
+    end
+  end)
+  player.inventory.addedItemCallback = function(self,itemName)
+    -- an item was added!
+    if debug_mode then 
+      print(self:countItem(itemName))
+    end
+  end
+
+  table.insert(sprite_list,player)
+
+  player.current_animation = player.animations.walk
+
+  return player
 end
 
 
@@ -339,23 +377,7 @@ local function setLevel(n)
       end
     end
 
-    player = Character.init('player','img/chara_player.png',spawn_point.x,spawn_point.y)
-    player.body = love.physics.newBody(world, player.pos.x, player.pos.y, "dynamic")
-    player.body:setLinearDamping(10)
-    player.body:setFixedRotation(true)
-    player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
-    player.fixture = love.physics.newFixture(player.body, player.shape)
-    player.inventory = Inventory()
-    player.inventory.addedItemCallback = function(self,itemName)
-      -- an item was added!
-      if debug_mode then 
-        print(self:countItem(itemName))
-      end
-    end
-
-    table.insert(sprite_list,player)
-  
-    player.current_animation = player.animations.walk
+    player = initializePlayerCharacter(spawn_point.x,spawn_point.y)
   
     camera = Camera(player.pos.x, player.pos.y)
   end
@@ -364,11 +386,14 @@ local function setLevel(n)
 end
 
 
+
 -- everytime we enter this gamestate, we do this
 function Game:enter()
   is_accept_enable = true
 
 end
+
+
 
 -- just called the first time we enter this state
 function Game:init()
@@ -382,20 +407,25 @@ function Game:init()
 end
 
 
+-- this is the update function
+-- if this state is the current state, it will be called every dt time
 function Game:update(dt)
+  -- update wait for button, this will claim a button if
+  -- it's waiting a press
+  WaitForButton:update(dt)
+
   -- Make sure to do this or nothing will work!
   -- updates Timer, pay attention to use dot instead of collon
   Timer.update(dt)
 
-  -- waitForButton
-  WaitForButton:update(dt)
-  
-  -- update the world
+  -- update the world, for physics
   world:update(dt)
 
+
+  -- player movement related functions
   local speed = 96
   
-
+  -- responsive player direction in animation
   if keys_pressed['up'] and keys_pressed['right'] then 
     player.current_direction = 'up_right'
   elseif  keys_pressed['up'] and keys_pressed['left'] then 
@@ -590,6 +620,15 @@ function Game:update(dt)
 
   end
 
+
+  -- player update inventory is here so it won't conflict with the dialog
+  -- it has to be after all f_isAcceptPressed
+  -- update the inventory
+  if player ~= nil then
+    player.inventory:update(dt)
+  end
+
+
   if restart == true then
     restart = false
     setLevel(1)
@@ -638,6 +677,11 @@ local function drawFn()
         -- but not in the map, we would need to do it here
         -- right now this is empty
     end)
+
+    -- draws items in inventory
+    if player ~= nil then
+      player.inventory:draw()
+    end
 
     -- the screen msg is only drawn if it exists!
     if screen_msg ~= nil and string.len(screen_msg)>1 then
