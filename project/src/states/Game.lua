@@ -13,6 +13,7 @@ local Tween         = Timer.tween
 local Character     = require 'src.entities.Character'
 local Item          = require 'src.entities.Item'
 local Inventory     = require 'src.entities.Inventory'
+local ScreenMsg     = require 'src.entities.ScreenMsg'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
 local map
@@ -21,13 +22,6 @@ local cnv
 local player
 local camera
 
-local screen_msg = nil
-local screen_msg_x = 0
-local screen_msg_y = 0
-local screen_msg_w = 0
-local screen_msg_h = 0
-local screen_msg_txt_x = 0
-local screen_msg_txt_y = 0
 
 local world 
 
@@ -35,6 +29,7 @@ Game = Gamestate.new()
 
 local stuff = {}
 
+local onScreenDialog = ScreenMsg()
 local img_chara_player
 local img_chara_agent
 local player
@@ -50,7 +45,6 @@ local currentTransmissionId = nil
 local nextTransmissionRequest = false
 
 local agent_ray_of_seeing = 160
-
 
 
 -- Prevents the player from skipping too much by disabling the 
@@ -78,17 +72,6 @@ local function waitAccept(fn)
   WaitForButton:init(f_isAcceptPressed, fn)
 end
 
--- shows text on screen using the dialog box
-local function sayInBox(msg)
-  screen_msg_x = 70
-  screen_msg_y = 103
-  screen_msg_w = 184
-  screen_msg_h = 60
-  screen_msg_txt_x = 70 
-  screen_msg_txt_y = 103 
-  screen_msg = msg
-end
-
 
 -- every local function we want to expose to the tiled lua script
 -- MUST be in Action table
@@ -98,7 +81,7 @@ local Action = {}
 -- of time
 function Action.timedSay (seconds, text)
   return function (go)
-      sayInBox(text)
+      onScreenDialog:setMsg(text)
       Timer.after(seconds, go)
   end
 end
@@ -107,7 +90,7 @@ end
 -- in chain
 function Action.Say ( text)
   return function (go)
-      sayInBox(text)
+      onScreenDialog:setMsg(text)
       waitAccept(go)
   end
 end
@@ -116,7 +99,7 @@ end
 -- from screen.
 function Action.closeSay ()
   return function (go)
-      sayInBox()
+      onScreenDialog:setMsg()
       go()
   end
 end
@@ -329,7 +312,7 @@ local function setLevel(n)
         enemy.body:setActive(false)
         enemy.pursuitacc = 0
         enemy.update = function(target)
-          if (screen_msg ~= nil and string.len(screen_msg) > 1) then
+          if onScreenDialog:hasMsg() then
           else
             local vx, vy = enemy.body:getLinearVelocity()
             local max_acc = 12
@@ -498,7 +481,7 @@ function Game:update(dt)
     vx = lume.lerp(vx, 0, 0.2)
   end
 
-  if (screen_msg ~= nil and string.len(screen_msg) > 1) then
+  if onScreenDialog:hasMsg() then
     vx = 0
     vy = 0
   else
@@ -598,7 +581,7 @@ function Game:update(dt)
           t[i].seen = true
         end
         if not t[i].seen then
-          sayInBox(t[i].msg)
+          onScreenDialog:setMsg(t[i].msg)
           break
         end
       end
@@ -629,6 +612,8 @@ function Game:update(dt)
 
   end
 
+  -- update onScreenDialog
+  onScreenDialog:update(dt)
 
   -- player update inventory is here so it won't conflict with the dialog
   -- it has to be after all f_isAcceptPressed
@@ -692,27 +677,8 @@ local function drawFn()
       player.inventory:draw()
     end
 
-    -- the screen msg is only drawn if it exists!
-    if screen_msg ~= nil and string.len(screen_msg)>1 then
-      local t_limit = screen_msg_w-2
-      local t_align = 'left'
-      -- let's guarantee the background is drawn with proper alpha
-      love.graphics.setColor( 255, 255, 255, 255 )
-
-      -- we will tween it
-      ui_texto_y = lume.lerp(ui_texto_y, 0, .18)
-      love.graphics.draw(Image.ui_texto,0,ui_texto_y)
-
-      -- now we draw the text on top of the dialog background
-      love.graphics.setFont(font_Verdana2)
-      love.graphics.setColor( 255, 255, 255, 255 )
-      love.graphics.printf(screen_msg,screen_msg_txt_x,screen_msg_txt_y+ui_texto_y, t_limit, t_align)
-    else
-      -- if we have no text, we just hide the dialog
-      ui_texto_y = lume.lerp(ui_texto_y, -600, .2)
-      love.graphics.draw(Image.ui_texto,0,ui_texto_y)
-    end
-
+    -- draw screen dialog
+    onScreenDialog:draw()
     
     if debug_mode then
       -- let's draw additional debug info
