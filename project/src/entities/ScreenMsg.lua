@@ -4,7 +4,7 @@ local lume          = requireLibrary("lume")
 local anim8         = requireLibrary("anim8")
 
 --------------------------------------------------------------------------------
--- Class Definition
+-- Class Definitiond
 --------------------------------------------------------------------------------
 
 ScreenMsg = Class{
@@ -19,6 +19,10 @@ ScreenMsg = Class{
     self.txt_y = 103 
     self.tcount = 0
     self.msg = nil
+    self.msg_size = 1
+    self.letter_typing_time = 0.025
+    self.letter_typing_elapsed = 0
+    self.currentCharIndex = 1
     self.bg_img = Image.ui_texto
     self.button_press_sprite = Image.button_pressing
     self.button_press_grid = anim8.newGrid(self.button_press_sprite:getWidth()/4, self.button_press_sprite:getHeight(),
@@ -28,7 +32,11 @@ ScreenMsg = Class{
 
   setMsg = function(self,msg)
     if self.msg ~= msg then 
-      self.tcount = 0      
+      self.tcount = 0
+      self.currentCharIndex = 1
+      if (self.msg ~= nil) then
+        self.msg_size = #self.msg
+      end
     end 
 
     self.msg = msg
@@ -59,7 +67,7 @@ ScreenMsg = Class{
       love.graphics.setFont(font_Verdana2)
       love.graphics.setColor( 255, 255, 255, 255 )
 
-      love.graphics.printf(self.msg,
+      love.graphics.printf(string.sub(self.msg, 0, self.currentCharIndex),
         self.txt_x, self.txt_y+self.ui_texto_y,
         t_limit, t_align)
     else
@@ -73,6 +81,16 @@ ScreenMsg = Class{
     if self.hasMsg(self) then
       self.tcount = self.tcount + dt
       self.button_animation:update(dt)
+      
+      -- typing effect
+      -- TO DO on button press, show entire msg before moving on to the next
+      -- TO DO play sfx
+      -- Feature: make loger typing pauses on punctuation moments
+      self.letter_typing_elapsed = self.letter_typing_elapsed + love.timer.getDelta()
+      if self.letter_typing_elapsed > self.letter_typing_time then
+        self.letter_typing_elapsed = 0
+        self.currentCharIndex = lume.clamp(self.currentCharIndex + 1, 1, #self.msg)
+      end
     end
   end 
 }
