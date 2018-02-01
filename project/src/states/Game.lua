@@ -1,5 +1,5 @@
 --
---  Game
+--  Game State 
 --
 
 local Gamestate     = requireLibrary("hump.gamestate")
@@ -7,7 +7,6 @@ local Timer         = requireLibrary("hump.timer")
 local Vector        = requireLibrary("hump.vector")
 local Camera        = requireLibrary("hump.camera")
 local anim8         = requireLibrary("anim8")
---local Timer         = requireLibrary("knife.timer")
 local Chain         = requireLibrary("knife.chain")
 local Tween         = Timer.tween
 local Character     = require 'src.entities.Character'
@@ -16,21 +15,31 @@ local Inventory     = require 'src.entities.Inventory'
 local ScreenMsg     = require 'src.entities.ScreenMsg'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
-local map
-local strength
-local cnv
+
+-- the level map to be loaded with sti
+local map  
+
+-- strength for the shader
+local strength  
+
+-- canvas for drawing
+local cnv  
+
+-- a variable to hold player character information
 local player
+
+-- game camera
 local camera
 
-
+-- world used for physics
 local world 
 
 Game = Gamestate.new()
 
-local stuff = {}
-
+-- holds information on the screen text dialog.
+-- use .setMsg(msg) for writing text on screen
 local onScreenDialog = ScreenMsg()
-local player
+
 local last_level
 
 local list_triggers = {}
