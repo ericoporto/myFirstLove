@@ -148,6 +148,8 @@ local function initializePlayerCharacter(spawnX,spawnY)
   player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
   player.fixture = love.physics.newFixture(player.body, player.shape)
   player.inventory = Inventory()
+
+  -- let's define how the items in this game works!
   player.inventory:defineItem('radio',
   -- draw function
   function(self)
@@ -163,8 +165,15 @@ local function initializePlayerCharacter(spawnX,spawnY)
       self.remove()
     end
   end)
+
+  -- a callback function for when an item is added, we can use this 
+  -- for sound effect and triggering drawing effects
   player.inventory.addedItemCallback = function(self,itemName)
     -- an item was added!
+    if itemName=='radio' then
+      Sfx.GGJ18_walkie_talkie:play()
+    end
+
     if debug_mode then 
       print(self:countItem(itemName))
     end
