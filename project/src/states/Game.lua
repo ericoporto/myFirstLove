@@ -625,7 +625,7 @@ function Game:update(dt)
 
   if restart == true then
     restart = false
-    setLevel(1)
+    setLevel(last_level)
   end
 
 end

@@ -27,6 +27,7 @@ local cutscene_active
 local selected_credits
 local selected_start
 
+local start_screen_loaded
 
 local is_accept_enable = true
 local function f_isAcceptPressed()
@@ -79,6 +80,9 @@ end
 
 function StartScreen:enter()
   cutscene_active = true
+  selected_start = true
+  selected_credits = false
+  start_screen_loaded = false
   opacityTween = 0
   xpos_step = 8
   opacity_step = 2
@@ -101,7 +105,7 @@ function StartScreen:update(dt)
   
   end
 
-  if f_isAcceptPressed() then 
+  if start_screen_loaded and f_isAcceptPressed() then 
     if selected_start then
       selected_start = false 
       selected_credits = false 
@@ -118,7 +122,7 @@ function StartScreen:update(dt)
   if opacityTween<256-opacity_step then
     opacityTween = opacityTween + opacity_step
   else 
-
+    start_screen_loaded = true
   end
 
 end
