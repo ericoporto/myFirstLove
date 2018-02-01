@@ -30,8 +30,6 @@ Game = Gamestate.new()
 local stuff = {}
 
 local onScreenDialog = ScreenMsg()
-local img_chara_player
-local img_chara_agent
 local player
 local last_level
 
@@ -169,6 +167,77 @@ local function initializePlayerCharacter(spawnX,spawnY)
   return player
 end
 
+-- initialize an enemy character
+local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
+  enemyId = tonumber(enemyId )
+  -- table.insert(list_enemySpawner,object)
+  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY)
+  enemy.id = enemyId
+  enemy.active = false
+  enemy.body = love.physics.newBody(world, enemy.pos.x, enemy.pos.y, "dynamic")
+  enemy.body:setLinearDamping(10)
+  enemy.body:setFixedRotation(true)
+  enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
+  enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
+  enemy.body:setActive(false)
+  enemy.pursuitacc = 0
+  enemy.update = function(target)
+    if onScreenDialog:hasMsg() then
+    else
+      local vx, vy = enemy.body:getLinearVelocity()
+      local max_acc = 12
+      local acc = enemy.pursuitacc
+      if enemy.pursuitacc<max_acc then
+        enemy.pursuitacc = enemy.pursuitacc + 1
+      end
+
+      local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
+      if (dst < agent_ray_of_seeing) then
+        if (enemy.pos.x > target.pos.x + 6) then
+          vx = vx - acc
+        elseif (enemy.pos.x < target.pos.x - 6) then
+          vx = vx + acc
+        end
+
+        if (enemy.pos.y > target.pos.y + 6) then
+          vy = vy - acc
+        elseif (enemy.pos.y < target.pos.y - 6) then
+          vy = vy + acc
+        end
+        enemy.body:setLinearVelocity(vx, vy)
+        enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
+
+        if (vx > 10) then
+          enemy.current_direction = 'right'
+          if vy > 10 then
+            enemy.current_direction = 'down_right'
+          elseif vy < -10 then
+            enemy.current_direction = 'up_right'
+          end
+        elseif (vx < -10) then
+          enemy.current_direction = 'left'
+          if vy > 10 then
+            enemy.current_direction = 'down_left'
+          elseif vy < -10 then
+            enemy.current_direction = 'up_left'
+          end
+        else
+          if enemy.pursuitacc > 1 then
+            enemy.pursuitacc = enemy.pursuitacc - 1
+          end
+
+          if vy > 10 then
+            enemy.current_direction = 'down'
+          elseif vy < -10 then
+            enemy.current_direction = 'up'
+          end
+        end
+      end
+    end
+  end
+  table.insert(sprite_list,enemy)
+  return enemy
+end
 
 -- changes the level for level n
 local function setLevel(n)
@@ -250,27 +319,25 @@ local function setLevel(n)
         end
       end
     end
-
-    -- Get exit points of the map
-    for k, object in pairs(map.objects) do
-      if object.name == "Exit" then
-        table.insert(list_exit_points, object)
-        break
-      end
-    end
   
     local spawn_point
-    -- Get player spawn object
+    
+    -- let's look all map objects
     for k, object in pairs(map.objects) do
-      if object.name == "Player" then
-        spawn_point = object
-          break
-      end
-    end
 
-    -- Get triggers object
-    for k, object in pairs(map.objects) do
-      if object.properties['type'] == "trigger" and object.properties.msg ~= nil then
+      -- Get exit points of the map
+      if object ~= nil and  object.name == "Exit" then
+        table.insert(list_exit_points, object)
+      end
+
+      -- Get player spawn object
+      if object ~= nil and  object.name == "Player" then
+        spawn_point = object
+      end
+
+      -- let's get trigger objects
+      -- the msg different nil can be removed once the maps are refactored
+      if object ~= nil and  object.properties['type'] == "trigger" and object.properties.msg ~= nil then
         table.insert(list_triggers,object)
         object.properties.id = tonumber(object.properties.spawnEnnemy )
         transmissionMessages[object.properties.id] = {}
@@ -280,12 +347,9 @@ local function setLevel(n)
         end
         table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
       end
-    end
 
-
-    -- Get items object
-    for k, object in pairs(map.objects) do
-      if object.name == "itemSpawner" then
+      -- let's look if item's should be placed in map
+      if object ~= nil and  object.name == "itemSpawner" then
         if object.properties.item == 'radio' then
           local radio = Item.init('radio','img/chara_radio.png',object.x,object.y)
           table.insert(sprite_list,radio)
@@ -293,84 +357,18 @@ local function setLevel(n)
           map.objects[k] = nil
         end
       end 
-    end
 
-
-    -- Get triggers object
-    for k, object in pairs(map.objects) do
-      if object.name == "ennemySpawner" then
-        object.properties.id = tonumber(object.properties.id )
-        -- table.insert(list_enemySpawner,object)
-        local enemy = Character.init('enemy','img/chara_agent.png',object.x,object.y)
-        enemy.id = object.properties.id
-        enemy.active = false
-        enemy.body = love.physics.newBody(world, enemy.pos.x, enemy.pos.y, "dynamic")
-        enemy.body:setLinearDamping(10)
-        enemy.body:setFixedRotation(true)
-        enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
-        enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
-        enemy.body:setActive(false)
-        enemy.pursuitacc = 0
-        enemy.update = function(target)
-          if onScreenDialog:hasMsg() then
-          else
-            local vx, vy = enemy.body:getLinearVelocity()
-            local max_acc = 12
-            local acc = enemy.pursuitacc
-            if enemy.pursuitacc<max_acc then
-              enemy.pursuitacc = enemy.pursuitacc + 1
-            end
-
-            local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
-            if (dst < agent_ray_of_seeing) then
-              if (enemy.pos.x > target.pos.x + 6) then
-                vx = vx - acc
-              elseif (enemy.pos.x < target.pos.x - 6) then
-                vx = vx + acc
-              end
-    
-              if (enemy.pos.y > target.pos.y + 6) then
-                vy = vy - acc
-              elseif (enemy.pos.y < target.pos.y - 6) then
-                vy = vy + acc
-              end
-              enemy.body:setLinearVelocity(vx, vy)
-              enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
-    
-              if (vx > 10) then
-                enemy.current_direction = 'right'
-                if vy > 10 then
-                  enemy.current_direction = 'down_right'
-                elseif vy < -10 then
-                  enemy.current_direction = 'up_right'
-                end
-              elseif (vx < -10) then
-                enemy.current_direction = 'left'
-                if vy > 10 then
-                  enemy.current_direction = 'down_left'
-                elseif vy < -10 then
-                  enemy.current_direction = 'up_left'
-                end
-              else
-                if enemy.pursuitacc > 1 then
-                  enemy.pursuitacc = enemy.pursuitacc - 1
-                end
-
-                if vy > 10 then
-                  enemy.current_direction = 'down'
-                elseif vy < -10 then
-                  enemy.current_direction = 'up'
-                end
-              end
-            end
-          end
-        end
-        table.insert(sprite_list,enemy)
+      -- let's place enemys where required
+      if object ~= nil and  object.name == "ennemySpawner" then
+        initializeEnemyCharacter(object.x,object.y,object.properties.id)
       end
+
     end
 
+    -- let's initialize the player only once, this game is single player
     player = initializePlayerCharacter(spawn_point.x,spawn_point.y)
   
+    -- let's set the camera to track the player
     camera = Camera(player.pos.x, player.pos.y)
   end
 
@@ -389,9 +387,6 @@ end
 
 -- just called the first time we enter this state
 function Game:init()
-  img_chara_agent = love.graphics.newImage('img/chara_agent.png')
-  local g_chara_agent = anim8.newGrid(24, 24, img_chara_agent:getWidth(), img_chara_agent:getHeight())
-
   cnv = love.graphics.newCanvas(GAME_WIDTH,GAME_HEIGHT)
 
   -- got to the first level
