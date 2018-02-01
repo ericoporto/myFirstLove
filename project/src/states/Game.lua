@@ -630,7 +630,8 @@ function Game:update(dt)
 
 end
 
-local ui_texto_y = -600
+
+
 local function drawFn()
   -- <Your drawing logic goes here.>
   -- let's disable the shader before drawing everything
