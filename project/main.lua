@@ -190,6 +190,14 @@ end
 
 -- Initialization
 function love.load(arg)
+	for k, v in ipairs(arg) do
+		-- mute music
+		if (v == '-nomusic') then
+			Music.ggj18_ambient:setVolume(0)
+    		Music.ggj18_theme:setVolume(0)
+		end
+		print(k .. ' ' .. v)
+	end
 	math.randomseed(os.time())
 	love.graphics.setDefaultFilter("nearest", "nearest")
 	-- love.mouse.setVisible(false)

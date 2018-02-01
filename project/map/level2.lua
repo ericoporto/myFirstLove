@@ -1332,8 +1332,8 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "1",
-            ["msg"] = "phone rings.. &\n-Hello?! &\n-They know about the virus project! & \n-Wait, who are you! & \n-You have to go. There no time to explain! Go to the north on the copy machine room!",
-            ["msgfr"] = "telephone sone.. &\n-Allo?! &\n-Ils savent sur le projet virus! & \n-Attendez, qui est-vouz?! & \n-Tu doit bouger, pas temps d'expliquer! Prends le vers nords, la salle de photocopies.",
+            ["msg"] = "phone rings... &\n-Hello?! &\n-They know about the virus project! & \n-Wait, who are you! & \n-You have to go. There is no time to explain! Go north to the copy machine room!",
+            ["msgfr"] = "telephone sone... &\n-Allo?! &\n-Ils savent sur le projet virus! & \n-Attendez, qui est-vouz?! & \n-Tu doit bouger, pas temps d'expliquer! Prends le vers nords, la salle de photocopies.",
             ["sound"] = "phone",
             ["spawnEnnemy"] = "1",
             ["type"] = "trigger"
@@ -1368,7 +1368,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "2",
-            ["msg"] = "Fax.. incoming.. &\nBe carefull all comunications are hacked! Infiltred agents are there to kill you! & \nAvoid them! I 'll try to guide your path to the next floor.",
+            ["msg"] = "Fax.. incoming.. &\nBe careful! All communicators are hacked! Infiltrated agents are there to kill you! & \nAvoid them! I will try to guide your path to the next floor.",
             ["msgfr"] = "Toute les comunications sont sous ecoute, ces agents veule ta peau. Je vais essayer de guider tes pas! Je dois..",
             ["spawnEnnemy"] = 0,
             ["type"] = "trigger"

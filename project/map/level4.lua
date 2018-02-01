@@ -591,7 +591,7 @@ return {
           properties = {
             ["ennemyType"] = "idle",
             ["id"] = "1",
-            ["msg"] = "-Agent Linda: We would not have been able to save everyone from the virus LT03 if it was not for your bravery. & \nThis disease is affecting terribly the whole country and the BRND Pharmaceutics wanted to profit from this disaster. & \nBut not anymore, thanks to you. Now the secret formula behind the antivirus is out for the whole world to use!!!",
+            ["msg"] = "-Agent Linda: We would not have been able to save everyone from the virus LT03 if it was not for your bravery. & \nThis disease is terribly affecting the whole country and the BRND Pharmaceutics wanted to profit from this disaster. & \nBut not anymore! Thanks to you. Now the secret formula behind the antivirus is out for the whole world to use!",
             ["msgfr"] = "-Agent Linda: Nous n'aurions pas pu sauver tout le monde du virus LT03 si ce n'etait de bravoure. & Cette maladie affecte terriblement tout le pays et la BRND Pharmaceutics a voulu profiter de cette catastrophe. &\nMais plus maintenant, grâce à vous. La formule secrete derriere l'antivirus est disponible pour le monde entier à utiliser !!!",
             ["spawnEnnemy"] = "0",
             ["type"] = "trigger"

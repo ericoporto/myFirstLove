@@ -18,6 +18,7 @@ ScreenMsg = Class{
     self.txt_x = 70 
     self.txt_y = 103 
     self.tcount = 0
+    self.seen = false
     self.msg = nil
     self.msg_size = 1
     self.letter_typing_time = 0.025
@@ -46,6 +47,16 @@ ScreenMsg = Class{
     return self.msg ~= nil and string.len(self.msg)>1
   end,
 
+  skipMessage = function(self)
+    if self:hasMsg() then
+      if self.currentCharIndex < #self.msg then
+        self.currentCharIndex = #self.msg
+        return false
+      else
+        return true
+      end
+    end
+  end,
 
   draw = function(self)
     -- the screen msg is only drawn if it exists!

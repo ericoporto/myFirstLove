@@ -65,7 +65,7 @@ local function f_isAcceptPressed()
     keys_pressed['buttona'] = nil
 
     -- prevents player from skipping all text by accident
-    Timer.after(0.6, function()
+    Timer.after(0.2, function()
       is_accept_enable = true
     end)
     return true
@@ -570,7 +570,6 @@ function Game:update(dt)
           for j,ent in pairs(sprite_list) do
             if ent.type == 'enemy' and ent.id == currentTransmissionId then
               playCutscene = not ent.active
-              --print (currentTransmissionId .. " " .. ent.id)
               ent.active = true
               ent.body:setActive(true)
             end
@@ -582,7 +581,7 @@ function Game:update(dt)
           -- break
         end
         if not t[i].seen and f_isAcceptPressed() then
-          t[i].seen = true
+          t[i].seen = onScreenDialog:skipMessage()
         end
         if not t[i].seen then
           onScreenDialog:setMsg(t[i].msg)
