@@ -581,7 +581,10 @@ function Game:update(dt)
           -- break
         end
         if not t[i].seen and f_isAcceptPressed() then
-          t[i].seen = onScreenDialog:skipMessage()
+          --t[i].seen = onScreenDialog:skipMessage()
+          -- using the above breaks Cutscenes
+          -- going back to using true
+          t[i].seen = true
         end
         if not t[i].seen then
           onScreenDialog:setMsg(t[i].msg)
