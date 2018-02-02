@@ -53,7 +53,6 @@ local nextTransmissionRequest = false
 
 local agent_ray_of_seeing = 160
 
-
 -- Prevents the player from skipping too much by disabling the 
 -- Accept button after it's checked
 local is_accept_enable = true
@@ -153,6 +152,28 @@ local function initializePlayerCharacter(spawnX,spawnY)
     if f_isAcceptPressed() then
       goToGameState('Cutscene')
       self.remove()
+
+      -- let's kill agents in a ray
+      local sniper_kill_ray = 64
+
+      for k,v in pairs(sprite_list) do
+        -- print(math.sqrt((v.pos.x-player.pos.x)^2+(v.pos.y-player.pos.y)^2))
+        if v.type == 'enemy' and 
+            math.sqrt((v.pos.x-player.pos.x)^2+(v.pos.y-player.pos.y)^2) < sniper_kill_ray then
+        
+              -- ideally, the enemy sprites should be 'tackled' away from player on hit
+              -- I don't know how to do this in a nice way
+              sprite_list[k].body:applyLinearImpulse(lume.clamp(sniper_kill_ray^2/(2*(v.pos.x-player.pos.x)),-2000, 2000),
+                                                     lume.clamp(sniper_kill_ray^2/(2*(v.pos.y-player.pos.y)),-2000, 2000))
+
+              -- after 0.3, do kill the agents in Ray
+              Timer.after(0.3, function()
+                sprite_list[k] = nil  --actually remove agents from game
+              end)
+            
+          
+        end
+      end
     end
   end)
 

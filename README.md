@@ -9,7 +9,7 @@ os TO-DOs do projeto para o final
 
 - [x] adicionar um trigger pra se nao estiver em diálogo e se radio>1, fazer radio -1 e chamar cutscene
 
-- [ ] adicionar uma função pra matar os agentes num raio
+- [x] adicionar uma função pra matar os agentes num raio
 
 - [ ] mudar a força no shader pra dar efeitos soh num período referente aos tiros
 
