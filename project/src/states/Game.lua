@@ -21,6 +21,17 @@ local map
 
 -- strength for the shader
 local strength  
+local shader_shot_factor  
+
+-- for the radio item, but we also want to draw in map
+local sniper_kill_ray = 64
+local shot = {
+  factor = 64,
+  window_xs = {0,2000,0,2000},
+  window_ys = {2000,0,0,2000},
+  player_x = 0,
+  player_y = 0
+}
 
 -- canvas for drawing
 local cnv  
@@ -128,14 +139,14 @@ local function runLuaScriptInChain(scriptAsString)
   assert(aLuaFunction)()
 end
 
+local function shotShader()
+  shader_shot_factor = shot.factor
+end
+
+
 -- initialize player Character 
 local function initializePlayerCharacter(spawnX,spawnY)
-  local player = Character.init('player','img/chara_player.png',spawnX,spawnY)
-  player.body = love.physics.newBody(world, player.pos.x, player.pos.y, "dynamic")
-  player.body:setLinearDamping(10)
-  player.body:setFixedRotation(true)
-  player.shape   = love.physics.newCircleShape(player.pxw/2, player.pxh/2, 6)
-  player.fixture = love.physics.newFixture(player.body, player.shape)
+  local player = Character.init('player','img/chara_player.png',spawnX,spawnY,world)
   player.inventory = Inventory()
 
   -- let's define how the items in this game works!
@@ -153,16 +164,19 @@ local function initializePlayerCharacter(spawnX,spawnY)
       goToGameState('Cutscene')
       self.remove()
 
-      -- let's kill agents in a ray
-      local sniper_kill_ray = 64
+      shotShader()
+      shot.player_x = player.pos.x
+      shot.player_y = player.pos.y
 
+      -- let's kill agents in a ray
       for k,v in pairs(sprite_list) do
-        -- print(math.sqrt((v.pos.x-player.pos.x)^2+(v.pos.y-player.pos.y)^2))
         if v.type == 'enemy' and 
             math.sqrt((v.pos.x-player.pos.x)^2+(v.pos.y-player.pos.y)^2) < sniper_kill_ray then
         
               -- ideally, the enemy sprites should be 'tackled' away from player on hit
               -- I don't know how to do this in a nice way
+              sprite_list[k].body:setLinearDamping(30)
+              sprite_list[k].color = {255,128,128,255}
               sprite_list[k].body:applyLinearImpulse(lume.clamp(sniper_kill_ray^2/(2*(v.pos.x-player.pos.x)),-2000, 2000),
                                                      lume.clamp(sniper_kill_ray^2/(2*(v.pos.y-player.pos.y)),-2000, 2000))
 
@@ -201,14 +215,10 @@ end
 local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
   enemyId = tonumber(enemyId )
   -- table.insert(list_enemySpawner,object)
-  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY)
+  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY,world)
   enemy.id = enemyId
   enemy.active = false
-  enemy.body = love.physics.newBody(world, enemy.pos.x, enemy.pos.y, "dynamic")
-  enemy.body:setLinearDamping(10)
-  enemy.body:setFixedRotation(true)
-  enemy.shape   = love.physics.newCircleShape(enemy.pxw/2, enemy.pxh/2, 6)
-  enemy.fixture = love.physics.newFixture(enemy.body, enemy.shape)
+
   enemy.body:setActive(false)
   enemy.pursuitacc = 0
   enemy.update = function(target)
@@ -326,9 +336,34 @@ local function setLevel(n)
       -- love.graphics.setPointSize(8)
       -- love.graphics.points(math.floor(player.pos.x), math.floor(player.pos.y))
   
+      -- this the player asked 'fire!' using radio, do some stuff
+      if shader_shot_factor > 1 then 
+        love.graphics.setColor(64, 16, 16,255*shader_shot_factor/shot.factor)
+        for i,v in pairs(shot.window_xs) do
+          local p_x = shot.player_x+16+8*love.math.random()
+          local p_y = shot.player_y+16+8*love.math.random()
+          local slope = (p_y-shot.window_ys[i])/(p_x-shot.window_xs[i])
+          local constant = p_y-slope*p_x
+
+          local next_window_x = ternary(shot.window_xs[i+1]~=nil, shot.window_xs[i+1], shot.window_xs[1])
+          local next_window_y = ternary(shot.window_ys[i+1]~=nil, shot.window_ys[i+1], shot.window_ys[1])
+
+          love.graphics.line(shot.window_xs[i],shot.window_ys[i],next_window_x,next_window_x*slope+constant)
+
+        end
+
+
+        love.graphics.setColor(255, 0, 0,196)
+        local slash_length = sniper_kill_ray*shader_shot_factor/shot.factor
+        love.graphics.circle('line',shot.player_x+slash_length,shot.player_y+slash_length,slash_length)
+        love.graphics.circle('line',shot.player_x-slash_length,shot.player_y+slash_length,slash_length)
+        love.graphics.circle('line',shot.player_x+slash_length,shot.player_y-slash_length,slash_length)
+        love.graphics.circle('line',shot.player_x-slash_length,shot.player_y-slash_length,slash_length)
+      end
+
       for _,spr in pairs(sprite_list) do
-        if spr.active then
-          spr.current_animation[spr.current_direction]:draw(spr.sprite,spr.pos.x-spr.pxw/2,spr.pos.y-spr.pxh/1.1)
+        if spr~= nil and spr.active then
+          spr.draw()
         end
         if spr.type == 'enemy' then
           if spr.active then
@@ -655,6 +690,13 @@ function Game:update(dt)
     setLevel(last_level)
   end
 
+  if shader_shot_factor == nil or shader_shot_factor<=1 then
+    shader_shot_factor = 1
+  else
+    shader_shot_factor=shader_shot_factor/1.4
+  end
+
+
 end
 
 
@@ -723,8 +765,8 @@ local function drawFn()
   love.graphics.setShader(shader_screen)
   strength = math.sin(love.timer.getTime()*2)
   shader_screen:send("abberationVector", {
-    lume.clamp(strength * math.sin(love.timer.getTime() * 3) / 200, 0, 100), 
-    lume.clamp(strength * math.sin(love.timer.getTime() * 5) / 200, 0, 100)
+    shader_shot_factor*lume.clamp(strength * math.sin(love.timer.getTime() * 3) / 200, 0, 100)+(shader_shot_factor-1), 
+    shader_shot_factor*lume.clamp(strength * math.sin(love.timer.getTime() * 5) / 200, 0, 100)+(-shader_shot_factor+1)
   })
 
   -- draw everything on screen

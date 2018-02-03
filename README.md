@@ -11,7 +11,7 @@ os TO-DOs do projeto para o final
 
 - [x] adicionar uma função pra matar os agentes num raio
 
-- [ ] mudar a força no shader pra dar efeitos soh num período referente aos tiros
+- [x] mudar a força no shader pra dar efeitos soh num período referente aos tiros
 
 - [ ] mover o raio de alcance do agente para ficar no meio de onde ele está olhando: criar uma função q recebe a direção do agente, a posição do agente e o raio do circulo e diz o centro do círculo
 
@@ -35,4 +35,4 @@ os TO-DOs do projeto para o final
 
 - [ ] melhorar função de diálogo pra escrever letra a letra e tocar os efeitos ogg (efeito maquina de escrever)
 
-- [ ] adicionar em algum lugar a informação de quais são os comandos
+- [x] adicionar em algum lugar a informação de quais são os comandos

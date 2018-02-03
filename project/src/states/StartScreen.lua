@@ -148,6 +148,9 @@ local function drawFn2()
         love.graphics.print('> Hello, Susan ',txt_x,txt_y-12)
         love.graphics.print(' - Start',txt_x,txt_y)
         love.graphics.print(' - Credits',txt_x,txt_y2)
+
+
+        love.graphics.print('Controls: WASD+K',96,128)
         
         love.graphics.setColor(255,255,255,128)
         if selected_start then 

@@ -16,6 +16,8 @@ Cutscene = Gamestate.new()
 
 local stuff = {}
 local opacityTween
+local ypos_c0_step
+local cutscene_p0_ypos
 local cutscene_p1_xpos
 local cutscene_p2_xpos
 local cutscene_p3_xpos
@@ -37,16 +39,24 @@ end
 function Cutscene:enter()
   has_said_fire_once = false
   opacityTween = 0
-  xpos_step = 32
-  opacity_step = 32
+  xpos_step = 48
+  opacity_step = 48
+  ypos_c0_step = 32
   change_scene_once = true
   waiter_last = 0
+  cutscene_p0_ypos = 1*GAME_HEIGHT
   cutscene_p1_xpos = 2*GAME_WIDTH
   cutscene_p2_xpos = 2*GAME_WIDTH
   cutscene_p3_xpos = 2*GAME_WIDTH
 end
 
 function Cutscene:update(dt)
+  if cutscene_p0_ypos <= 0 then
+    cutscene_p0_ypos = 0
+  else
+    cutscene_p0_ypos = cutscene_p0_ypos - ypos_c0_step
+  end
+
   if opacityTween<256-opacity_step then
     opacityTween = opacityTween + opacity_step
   else 
@@ -57,12 +67,15 @@ function Cutscene:update(dt)
     if cutscene_p1_xpos > xpos_step-1 then 
       cutscene_p1_xpos = cutscene_p1_xpos - xpos_step
     else
+      cutscene_p1_xpos = 0
       if cutscene_p2_xpos > xpos_step-1 then 
         cutscene_p2_xpos = cutscene_p2_xpos - xpos_step
       else
+        cutscene_p2_xpos = 0
         if cutscene_p3_xpos > xpos_step-1 then 
           cutscene_p3_xpos = cutscene_p3_xpos - xpos_step
         else
+          cutscene_p3_xpos = 0
           if waiter_last < 32 then
             waiter_last = waiter_last +1
           else
@@ -97,7 +110,7 @@ local function drawFn2()
       love.graphics.setColor(255,255,255,255)
       drawLastStateScreenshot()
       love.graphics.setColor(255,255,255,opacityTween)
-      love.graphics.draw(Image.cutscene_01)
+      love.graphics.draw(Image.cutscene_01,0,cutscene_p0_ypos)
       love.graphics.draw(Image.cutscene_01_p1,cutscene_p1_xpos)
       love.graphics.draw(Image.cutscene_01_p2,cutscene_p2_xpos)
       love.graphics.draw(Image.cutscene_01_p3,cutscene_p3_xpos)

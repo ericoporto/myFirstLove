@@ -32,7 +32,7 @@ Object = requireLibrary("classic")
 screen = nil
 class_commons = nil
 common = nil
-no_game_code = nil
+no_game_code = nil 
 
 
 -- fonts
@@ -57,6 +57,11 @@ keys_pressed = {}
 keys_previousGamepad = {}
 
 local p1joystick = nil
+
+-- creating a global ternary if function
+function ternary ( cond , T , F )
+  if cond then return T else return F end
+end
 
 -- adding a function to remove keys from tables
 function table.removekey(table, key)
