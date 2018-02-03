@@ -34,6 +34,7 @@ class_commons = nil
 common = nil
 no_game_code = nil 
 
+game_locale = nil
 
 -- fonts
 font_16bfZX = nil
@@ -209,7 +210,10 @@ function love.load(arg)
     -- print "Require Sources:"
 	recursiveRequire("src")
 	Gamestate.registerEvents()
-	Gamestate.switch(StartScreen)
+  Gamestate.switch(StartScreen)
+  
+  -- set locale
+  game_locale = 'en'
 
   -- Set nearest-neighbour scaling. Calling this is optional.
   Terebi.initializeLoveDefaults()

@@ -58,10 +58,6 @@ local list_exit_points = {}
 local list_enemySpawner = {}
 local sprite_list = {}
 
-local transmissionMessages = {}
-local currentTransmissionId = nil
-local nextTransmissionRequest = false
-
 local agent_ray_of_seeing = 160
 
 -- Prevents the player from skipping too much by disabling the 
@@ -87,6 +83,79 @@ end
 -- after Accept is pressed, the passed function is called
 local function waitAccept(fn)
   WaitForButton:init(f_isAcceptPressed, fn)
+end
+
+
+-- initialize an enemy character
+local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
+  enemyId = tonumber(enemyId )
+  -- table.insert(list_enemySpawner,object)
+  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY,world)
+  enemy.id = enemyId
+  enemy.active = true
+
+  if debug_mode then
+    print('initializing an enemy character at x=' .. spawnX ..  ' y=' .. spawnY .. '.')
+  end
+
+  --enemy.body:setActive(false)
+  enemy.pursuitacc = 0
+  enemy.update = function(target)
+    if onScreenDialog:hasMsg() then
+    else
+      local vx, vy = enemy.body:getLinearVelocity()
+      local max_acc = 12
+      local acc = enemy.pursuitacc
+      if enemy.pursuitacc<max_acc then
+        enemy.pursuitacc = enemy.pursuitacc + 1
+      end
+
+      local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
+      if (dst < agent_ray_of_seeing) then
+        if (enemy.pos.x > target.pos.x + 6) then
+          vx = vx - acc
+        elseif (enemy.pos.x < target.pos.x - 6) then
+          vx = vx + acc
+        end
+
+        if (enemy.pos.y > target.pos.y + 6) then
+          vy = vy - acc
+        elseif (enemy.pos.y < target.pos.y - 6) then
+          vy = vy + acc
+        end
+        enemy.body:setLinearVelocity(vx, vy)
+        enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
+
+        if (vx > 10) then
+          enemy.current_direction = 'right'
+          if vy > 10 then
+            enemy.current_direction = 'down_right'
+          elseif vy < -10 then
+            enemy.current_direction = 'up_right'
+          end
+        elseif (vx < -10) then
+          enemy.current_direction = 'left'
+          if vy > 10 then
+            enemy.current_direction = 'down_left'
+          elseif vy < -10 then
+            enemy.current_direction = 'up_left'
+          end
+        else
+          if enemy.pursuitacc > 1 then
+            enemy.pursuitacc = enemy.pursuitacc - 1
+          end
+
+          if vy > 10 then
+            enemy.current_direction = 'down'
+          elseif vy < -10 then
+            enemy.current_direction = 'up'
+          end
+        end
+      end
+    end
+  end
+  table.insert(sprite_list,enemy)
+  return enemy
 end
 
 
@@ -121,6 +190,40 @@ function Action.closeSay ()
   end
 end
 
+
+-- play a sound from Sfx folder
+function Action.playSound (asfx)
+  return function (go)
+      Sfx.asfx:play()
+      go()
+  end
+end
+
+-- place an enemy on a spawn point by ID
+function Action.SpawnEnemy (placeId)
+  return function (go)
+      
+      -- let's look all map objects
+      for k, object in pairs(map.objects) do
+        -- let's place enemys where required
+        if object ~= nil and  object.name == "ennemySpawner" and tonumber(object.properties.id) == tonumber(placeId) then
+          initializeEnemyCharacter(object.x,object.y,tonumber(placeId))
+        end
+      end
+
+      go()
+  end
+end
+
+
+-- play a sound from Sfx folder
+function Action.EndGame ()
+  return function (go)
+      goToGameState('CreditsState')
+      setLevel(0)
+  end
+end
+
 -- a helper function to run a lua script written as string, using Chain
 -- Chain allows passing the next function as callback, enabling that the
 -- the next function can be executed from Asynchronous calls, but
@@ -128,13 +231,40 @@ end
 local function runLuaScriptInChain(scriptAsString)
 
   local context = {Chain = Chain,
+    Say = Action.Say,
     timedSay = Action.timedSay,
     closeSay = Action.closeSay,
-    Say = Action.Say,
+    EndGame = Action.EndGame,
+    waitAccept = waitAccept,
+    SpawnEnemy = Action.SpawnEnemy,
+    locale = game_locale,
   }
 
   setmetatable(context, { __index = _G })
-  local aLuaFunction = loadstring('Chain(	' .. scriptAsString .. ')()')
+  local loadstring = ternary(loadstring~=nil,loadstring,load)
+  local string_to_load = 'Chain(	' .. scriptAsString .. ')()'
+
+  local aLuaFunction = loadstring(string_to_load)
+
+  setfenv(aLuaFunction, context)
+  assert(aLuaFunction)()
+end
+
+local function runLuaScript(scriptAsString)
+
+  local context = {Chain = Chain,
+    closeSay = onScreenDialog.setMsg,
+    Say = onScreenDialog.setMsg,
+    after = Timer.after,
+    SpawnEnemy = Action.SpawnEnemy,
+    locale = game_locale,
+  }
+
+  setmetatable(context, { __index = _G })
+  local loadstring = ternary(loadstring~=nil,loadstring,load)
+
+  local aLuaFunction = loadstring(scriptAsString)
+
   setfenv(aLuaFunction, context)
   assert(aLuaFunction)()
 end
@@ -211,95 +341,25 @@ local function initializePlayerCharacter(spawnX,spawnY)
   return player
 end
 
--- initialize an enemy character
-local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
-  enemyId = tonumber(enemyId )
-  -- table.insert(list_enemySpawner,object)
-  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY,world)
-  enemy.id = enemyId
-  enemy.active = false
-
-  enemy.body:setActive(false)
-  enemy.pursuitacc = 0
-  enemy.update = function(target)
-    if onScreenDialog:hasMsg() then
-    else
-      local vx, vy = enemy.body:getLinearVelocity()
-      local max_acc = 12
-      local acc = enemy.pursuitacc
-      if enemy.pursuitacc<max_acc then
-        enemy.pursuitacc = enemy.pursuitacc + 1
-      end
-
-      local dst = lume.distance(enemy.pos.x, enemy.pos.y, target.pos.x, target.pos.y)
-      if (dst < agent_ray_of_seeing) then
-        if (enemy.pos.x > target.pos.x + 6) then
-          vx = vx - acc
-        elseif (enemy.pos.x < target.pos.x - 6) then
-          vx = vx + acc
-        end
-
-        if (enemy.pos.y > target.pos.y + 6) then
-          vy = vy - acc
-        elseif (enemy.pos.y < target.pos.y - 6) then
-          vy = vy + acc
-        end
-        enemy.body:setLinearVelocity(vx, vy)
-        enemy.pos.x, enemy.pos.y = enemy.body:getWorldCenter()
-
-        if (vx > 10) then
-          enemy.current_direction = 'right'
-          if vy > 10 then
-            enemy.current_direction = 'down_right'
-          elseif vy < -10 then
-            enemy.current_direction = 'up_right'
-          end
-        elseif (vx < -10) then
-          enemy.current_direction = 'left'
-          if vy > 10 then
-            enemy.current_direction = 'down_left'
-          elseif vy < -10 then
-            enemy.current_direction = 'up_left'
-          end
-        else
-          if enemy.pursuitacc > 1 then
-            enemy.pursuitacc = enemy.pursuitacc - 1
-          end
-
-          if vy > 10 then
-            enemy.current_direction = 'down'
-          elseif vy < -10 then
-            enemy.current_direction = 'up'
-          end
-        end
-      end
-    end
-  end
-  table.insert(sprite_list,enemy)
-  return enemy
-end
-
 -- changes the level for level n
-local function setLevel(n)
+function setLevel(n)
   list_triggers = {}
   list_exit_points = {}
   list_enemySpawner = {}
   sprite_list = {}
-  transmissionMessages = {}
-  currentTransmissionId = nil
 
   map = sti("map/level" .. n .. ".lua", { "box2d" })
 
   if last_level==1 then 
     Music.ggj18_theme:stop()
     -- Music.theme:stop()
-  elseif n==2 then
+  elseif last_level==2 then
     -- Music.theme:stop()
-  elseif n==3 then
+  elseif last_level==3 then
     -- Music.theme:stop()
-  elseif n==4 then
+  elseif last_level==4 then
     -- Music.theme:stop()
-  elseif n==5 then
+  elseif last_level==5 then
     Music.ggj18_ambient:stop()
     Music.ggj18_theme:stop()
     Music.ggj18_theme:play()
@@ -315,7 +375,9 @@ local function setLevel(n)
   elseif n==4 then
     -- Music.theme:play()
   elseif n==5 then
-    -- Music.theme:play()
+    Music.ggj18_ambient:stop()
+    Music.ggj18_theme:stop()
+    Music.ggj18_theme:play()
   end
     
   if map ~= nil then
@@ -402,15 +464,9 @@ local function setLevel(n)
 
       -- let's get trigger objects
       -- the msg different nil can be removed once the maps are refactored
-      if object ~= nil and  object.properties['type'] == "trigger" and object.properties.msg ~= nil then
+      if object ~= nil and  object.properties.type == 'trigger' then
+        --print(object.properties)
         table.insert(list_triggers,object)
-        object.properties.id = tonumber(object.properties.spawnEnnemy )
-        transmissionMessages[object.properties.id] = {}
-        local aMessages = lume.splitStr(object.properties.msg, "&")
-        for i = 1, #aMessages do
-          table.insert(transmissionMessages[object.properties.id], { seen = false, msg = aMessages[i] })
-        end
-        table.insert(transmissionMessages[object.properties.id], { seen = false, msg = "" })
       end
 
       -- let's look if item's should be placed in map
@@ -422,11 +478,6 @@ local function setLevel(n)
           map.objects[k] = nil
         end
       end 
-
-      -- let's place enemys where required
-      if object ~= nil and  object.name == "ennemySpawner" then
-        initializeEnemyCharacter(object.x,object.y,object.properties.id)
-      end
 
     end
 
@@ -612,43 +663,6 @@ function Game:update(dt)
     end 
   end
 
-  -- this is the what makes the messages work! 
-  -- this block of code can be removed if we refactor the game maps to just
-  -- have lua functions! (using Say('string') commands)
-  if currentTransmissionId ~= nil then
-    local i = 1
-    local t = transmissionMessages[currentTransmissionId]
-    
-    if t ~= nil then
-      for i = 1, #t do
-        if i == #t then
-          local playCutscene = false
-          for j,ent in pairs(sprite_list) do
-            if ent.type == 'enemy' and ent.id == currentTransmissionId then
-              playCutscene = not ent.active
-              ent.active = true
-              ent.body:setActive(true)
-            end
-            if playCutscene then 
-
-              --goToGameState('Cutscene')
-            end
-          end
-          -- break
-        end
-        if not t[i].seen and f_isAcceptPressed() then
-          --t[i].seen = onScreenDialog:skipMessage()
-          -- using the above breaks Cutscenes
-          -- going back to using true
-          t[i].seen = true
-        end
-        if not t[i].seen then
-          onScreenDialog:setMsg(t[i].msg)
-          break
-        end
-      end
-    end
-  end
 
   -- this function checks for all triggers and triger then when player is on top
   for k, object in pairs(list_triggers) do
@@ -659,14 +673,18 @@ function Game:update(dt)
           object.y >= player.pos.y - player.pxh / 2 and
           object.y-object.height <= player.pos.y + player.pxh / 2 then
         
-        currentTransmissionId = tonumber(object.properties.id)
-      
-        -- I would like to remove the previous code and have
-        --     runLuaScriptInChain(object.properties.runLuaScript)
-        -- doing so would make this block of code repeat all the time.
-        -- this can be solved by killing this object:
-        --     object = nil	
-        --     list_triggers[k]=nil
+          if object.properties.runLuaChain ~= nil and #(object.properties.runLuaChain) > 1 then 
+
+            runLuaScriptInChain(object.properties.runLuaChain)
+
+            if object.properties.runLuaScript ~= nil and #(object.properties.runLuaScript) > 1 then
+              runLuaScript(object.properties.runLuaScript)
+            end
+
+
+            object = nil	
+            list_triggers[k]=nil
+          end
 
         break
       end

@@ -24,8 +24,8 @@ local xpos_step
 local change_scene_once
 local cutscene_active 
 
-local selected_credits
-local selected_start
+local selected 
+local menu_entries
 
 local start_screen_loaded
 
@@ -80,8 +80,9 @@ end
 
 function StartScreen:enter()
   cutscene_active = true
-  selected_start = true
-  selected_credits = false
+  selected = 1
+  menu_entries = {'- Start','- Credits','- Quit'}
+
   start_screen_loaded = false
   opacityTween = 0
   xpos_step = 8
@@ -96,24 +97,24 @@ function StartScreen:update(dt)
   Timer.update(dt)
 
   if f_isUpPressed() then
-    selected_credits = false
-    selected_start = true 
+    if selected > 1 then
+      selected = selected - 1
+    end
 
   elseif f_isDownPressed() then 
-    selected_credits = true
-    selected_start = false 
+    if selected < #menu_entries then
+      selected = selected + 1
+    end
   
   end
 
   if start_screen_loaded and f_isAcceptPressed() then 
-    if selected_start then
-      selected_start = false 
-      selected_credits = false 
+    if selected == 1 then
       goToGameState('Game')
-    elseif selected_credits then
-      selected_start = false 
-      selected_credits = false 
+    elseif selected == 2 then
       goToGameState('CreditsState')
+    else 
+      love.event.quit()
     end
 
   end
@@ -146,21 +147,14 @@ local function drawFn2()
         local txt_y2 = txt_y+12
         love.graphics.setColor(12,158,100,196)
         love.graphics.print('> Hello, Susan ',txt_x,txt_y-12)
-        love.graphics.print(' - Start',txt_x,txt_y)
-        love.graphics.print(' - Credits',txt_x,txt_y2)
-
-
         love.graphics.print('Controls: WASD+K',96,128)
-        
-        love.graphics.setColor(255,255,255,128)
-        if selected_start then 
-          love.graphics.print(' - Start',txt_x,txt_y)
-
-        end
-
-        if selected_credits then 
-          love.graphics.print(' - Credits',txt_x,txt_y2)
-
+        for k,v in pairs(menu_entries) do
+          love.graphics.setColor(12,158,100,196)
+          love.graphics.print(menu_entries[k],txt_x,txt_y-12+12*k)
+          if(k==selected) then
+            love.graphics.setColor(255,255,255,128)
+            love.graphics.print(menu_entries[k],txt_x,txt_y-12+12*k)
+          end
         end
 
       end

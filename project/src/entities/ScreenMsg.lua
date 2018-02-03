@@ -58,6 +58,11 @@ ScreenMsg = Class{
     end
   end,
 
+  skipWithCallback = function(self, callback)
+    self.skipMessage(self)
+    callback()
+  end,
+
   draw = function(self)
     -- the screen msg is only drawn if it exists!
     if self.hasMsg(self) then

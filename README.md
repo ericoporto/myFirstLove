@@ -25,9 +25,9 @@ os TO-DOs do projeto para o final
 
 - [ ] fazer que quando o agente toca o player, aparece alguma mensagem de 'perdeu playboy' e resetar o player na posição inicial do level (acho que é só setLevel(last_level) !!!)
 
-- [ ] adicionar um estado de fim e conectar ele nos créditos
+- [x] adicionar um estado de fim e conectar ele nos créditos
 
-- [ ] Entender porque o level 3 não está funcionando e arrumar.
+- [x] Entender porque o level 3 não está funcionando e arrumar.
 
 - [ ] adicionar janelas nos mapas para a origem dos tiros de sniper fazer sentido
 
