@@ -97,7 +97,7 @@ ScreenMsg = Class{
       if #self.msg > 1 and self.currentCharIndex > 1 and self.currentCharIndex < #self.msg then
         local letter = string.upper(self.msg:sub(self.currentCharIndex,self.currentCharIndex))
         
-        if string.match('0123456789ABCDEFGHIJKLMNOPQRSTUVXWYZ',letter) then
+        if string.match('0123456789ABCDEFGHIJKLMNOPQRSTUVXWYZ',letter) and letter ~= '' and letter ~= '.' then
           Sfx['GGJ18_beep_' .. letter]:play()
 
         end
