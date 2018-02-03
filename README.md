@@ -33,6 +33,8 @@ os TO-DOs do projeto para o final
 
 - [ ] adicionar uma camada de tiles e desenhar mais coisas nos mapas.
 
-- [ ] melhorar função de diálogo pra escrever letra a letra e tocar os efeitos ogg (efeito maquina de escrever)
+- [ ] melhorar função de diálogo pra escrever letra a letra (efeito maquina de escrever)
+
+- [x] tocar efeitos ao escrever texto na tela
 
 - [x] adicionar em algum lugar a informação de quais são os comandos
