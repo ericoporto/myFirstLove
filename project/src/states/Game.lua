@@ -321,6 +321,14 @@ local function initializePlayerCharacter(spawnX,spawnY)
     end
   end)
 
+  player.inventory:defineItem('secret',
+  -- draw function
+  function(self)
+    for secret_i =1, self.count() do
+      love.graphics.draw(Image.suitcase_ui_icon,secret_i*(Image.suitcase_ui_icon:getWidth()+2),GAME_HEIGHT - 6 - Image.suitcase_ui_icon:getHeight() )
+    end
+  end)
+
   -- a callback function for when an item is added, we can use this 
   -- for sound effect and triggering drawing effects
   player.inventory.addedItemCallback = function(self,itemName)
@@ -472,8 +480,15 @@ function setLevel(n)
       -- let's look if item's should be placed in map
       if object ~= nil and  object.name == "itemSpawner" then
         if object.properties.item == 'radio' then
+
           local radio = Item.init('radio','img/chara_radio.png',object.x,object.y)
           table.insert(sprite_list,radio)
+          object = nil 
+          map.objects[k] = nil
+        elseif object.properties.item == 'secret' then
+
+          local secret = Item.init('secret','img/chara_suitcase.png',object.x,object.y)
+          table.insert(sprite_list,secret)
           object = nil 
           map.objects[k] = nil
         end
@@ -625,20 +640,22 @@ function Game:update(dt)
 
   -- lets check collision with items
   for k, object in pairs(sprite_list) do
-    if object ~= nil and object.type == 'radio' then
+    if object ~= nil  and 
+    object.pos.x >= player.pos.x - player.pxw/2 and
+    object.pos.x <= player.pos.x + player.pxw/2 and 
+    object.pos.y >= player.pos.y - player.pxh/2 and
+    object.pos.y <= player.pos.y + player.pxh/2 then
+      if object.type == 'radio' then
 
-      if object.pos.x >= player.pos.x - player.pxw/2 and
-        object.pos.x <= player.pos.x + player.pxw/2 and 
-        object.pos.y >= player.pos.y - player.pxh/2 and
-        object.pos.y <= player.pos.y + player.pxh/2 then
-
-          player.inventory:addItem('radio')
-
+        player.inventory:addItem('radio')
         object = nil
         sprite_list[k] = nil
 
-        -- this is where we need to add the item radio to the inventory
-        --goToGameState('Cutscene')
+      elseif object.type == 'secret' then
+
+        player.inventory:addItem('secret')
+        object = nil
+        sprite_list[k] = nil
 
       end 
     end 

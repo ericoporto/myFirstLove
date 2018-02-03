@@ -1274,36 +1274,6 @@ return {
           gid = 891,
           visible = true,
           properties = {}
-        },
-        {
-          id = 138,
-          name = "itemSpawner",
-          type = "",
-          shape = "point",
-          x = 578.667,
-          y = 354,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["item"] = "secret"
-          }
-        },
-        {
-          id = 139,
-          name = "itemSpawner",
-          type = "",
-          shape = "point",
-          x = 312,
-          y = 106,
-          width = 0,
-          height = 0,
-          rotation = 0,
-          visible = true,
-          properties = {
-            ["item"] = "radio"
-          }
         }
       }
     },
@@ -1322,10 +1292,10 @@ return {
           name = "triggerDialog",
           type = "",
           shape = "rectangle",
-          x = 195.166,
-          y = 442,
-          width = 19.5,
-          height = 21,
+          x = 193.416,
+          y = 446.75,
+          width = 26.25,
+          height = 30,
           rotation = 0,
           gid = 219,
           visible = true,
@@ -1605,7 +1575,7 @@ return {
         {
           id = 125,
           name = "triggerDialog",
-          type = "",
+          type = "trigger",
           shape = "rectangle",
           x = 1013.38,
           y = 391,
@@ -1615,7 +1585,7 @@ return {
           gid = 219,
           visible = true,
           properties = {
-            ["runLuaChain"] = "SpawnEnemy(4),",
+            ["runLuaChain"] = "SpawnEnemy(5)",
             ["type"] = "trigger"
           }
         },
@@ -1696,6 +1666,36 @@ return {
           visible = true,
           properties = {
             ["id"] = 3
+          }
+        },
+        {
+          id = 139,
+          name = "itemSpawner",
+          type = "",
+          shape = "point",
+          x = 312,
+          y = 106,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["item"] = "radio"
+          }
+        },
+        {
+          id = 138,
+          name = "itemSpawner",
+          type = "",
+          shape = "point",
+          x = 578.667,
+          y = 354,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {
+            ["item"] = "secret"
           }
         }
       }
