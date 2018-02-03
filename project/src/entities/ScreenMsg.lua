@@ -93,11 +93,21 @@ ScreenMsg = Class{
       self.tcount = self.tcount + dt
       self.button_animation:update(dt)
       
+      -- play each letter sound
+      if #self.msg > 1 and self.currentCharIndex > 1 and self.currentCharIndex < #self.msg then
+        local letter = string.upper(self.msg:sub(self.currentCharIndex,self.currentCharIndex))
+        
+        if string.match('0123456789ABCDEFGHIJKLMNOPQRSTUVXWYZ',letter) then
+          Sfx['GGJ18_beep_' .. letter]:play()
+
+        end
+      end
+
       -- typing effect
       -- TO DO on button press, show entire msg before moving on to the next
       -- TO DO play sfx
       -- Feature: make loger typing pauses on punctuation moments
-      self.letter_typing_elapsed = self.letter_typing_elapsed + love.timer.getDelta()
+      self.letter_typing_elapsed = self.letter_typing_elapsed + dt
       if self.letter_typing_elapsed > self.letter_typing_time then
         self.letter_typing_elapsed = 0
         self.currentCharIndex = lume.clamp(self.currentCharIndex + 1, 1, #self.msg)
