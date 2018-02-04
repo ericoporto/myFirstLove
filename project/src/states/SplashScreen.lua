@@ -52,7 +52,7 @@ function SplashScreen:enter()
   is_accept_enable = false
   cutscene_active = true
   opacityTween = 0
-  opacity_step = 4
+  opacity_step = 2
   opacity_step_out = 6
   change_scene_once = true
   opacityTweenFadout = 255

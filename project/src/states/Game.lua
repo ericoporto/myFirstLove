@@ -236,6 +236,7 @@ end
 function Action.EndGame ()
   return function (go)
       onScreenDialog:setMsg()
+      Sfx.MrEnding:play()
       goToGameState('CreditsState')
       setLevel(0)
   end
