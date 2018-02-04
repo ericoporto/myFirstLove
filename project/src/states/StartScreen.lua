@@ -98,17 +98,20 @@ function StartScreen:update(dt)
 
   if f_isUpPressed() then
     if selected > 1 then
+      Sfx.Menu_Ui_select:play()
       selected = selected - 1
     end
 
   elseif f_isDownPressed() then 
     if selected < #menu_entries then
+      Sfx.Menu_Ui_select:play()
       selected = selected + 1
     end
   
   end
 
   if start_screen_loaded and f_isAcceptPressed() then 
+    Sfx.Menu_Ui_confirm:play()
     if selected == 1 then
       goToGameState('Game')
     elseif selected == 2 then

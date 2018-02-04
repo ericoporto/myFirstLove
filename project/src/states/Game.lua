@@ -235,6 +235,7 @@ end
 -- play a sound from Sfx folder
 function Action.EndGame ()
   return function (go)
+      onScreenDialog:setMsg()
       goToGameState('CreditsState')
       setLevel(0)
   end
