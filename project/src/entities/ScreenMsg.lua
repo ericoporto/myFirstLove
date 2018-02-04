@@ -89,7 +89,7 @@ ScreenMsg = Class{
     else
 
       -- if we have no text, we just hide the dialog
-      self.ui_texto_y  = lume.lerp(self.ui_texto_y , -600, .2)
+      self.ui_texto_y  = lume.lerp(self.ui_texto_y , -600, .05)
       love.graphics.draw(self.bg_img,0,self.ui_texto_y )
     end
   end,
