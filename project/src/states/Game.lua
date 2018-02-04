@@ -15,6 +15,8 @@ local Inventory     = require 'src.entities.Inventory'
 local ScreenMsg     = require 'src.entities.ScreenMsg'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
+local Json_format = requireLibrary("json_format")
+
 
 -- the level map to be loaded with sti
 local map  
@@ -38,6 +40,7 @@ local cnv
 
 -- a variable to hold player character information
 local player
+local player_inventory
 
 -- game camera
 local camera
@@ -87,10 +90,10 @@ end
 
 
 -- initialize an enemy character
-local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
+local function initializeEnemyCharacter(name, spawnX,spawnY,enemyId)
   enemyId = tonumber(enemyId )
   -- table.insert(list_enemySpawner,object)
-  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY,world)
+  local enemy = Character.init(name,'enemy','img/chara_agent.png',spawnX,spawnY,world)
   enemy.id = enemyId
   enemy.active = true
 
@@ -202,12 +205,13 @@ end
 -- place an enemy on a spawn point by ID
 function Action.SpawnEnemy (placeId)
   return function (go)
-      
+      local icount = 1
       -- let's look all map objects
       for k, object in pairs(map.objects) do
         -- let's place enemys where required
         if object ~= nil and  object.name == "ennemySpawner" and tonumber(object.properties.id) == tonumber(placeId) then
-          initializeEnemyCharacter(object.x,object.y,tonumber(placeId))
+          initializeEnemyCharacter('enemy_' .. object.properties.id .. '_' .. icount,object.x,object.y,tonumber(placeId))
+          icount=icount+1
         end
       end
 
@@ -276,8 +280,8 @@ end
 
 -- initialize player Character 
 local function initializePlayerCharacter(spawnX,spawnY)
-  local player = Character.init('player','img/chara_player.png',spawnX,spawnY,world)
-  player.inventory = Inventory()
+  local player = Character.init('player','player','img/chara_player.png',spawnX,spawnY,world)
+  player.inventory = player_inventory
 
   -- let's define how the items in this game works!
   player.inventory:defineItem('radio',
@@ -335,6 +339,8 @@ local function initializePlayerCharacter(spawnX,spawnY)
     -- an item was added!
     if itemName=='radio' then
       Sfx.GGJ18_walkie_talkie:play()
+    elseif itemName=='secret' then
+      Sfx.Kenney_bookClose:play()
     end
 
     if debug_mode then 
@@ -349,8 +355,62 @@ local function initializePlayerCharacter(spawnX,spawnY)
   return player
 end
 
+-- functions for dealing with collision
+
+-- once contact starts, we run this
+local function beginContact(a, b, coll)
+  local n_x,n_y = coll:getNormal()
+  
+  if a:getUserData() ~= nil and b:getUserData() ~= nil then
+    if a:getUserData()=='player' and type(b:getUserData()) == 'string' or 
+       type(a:getUserData())=='string' and b:getUserData()=='player' then
+
+      if string.match(b:getUserData(), 'enemy') then 
+        
+        if player.inventory:hasItem('secret') then
+          player.inventory:removeItem('secret')
+          player.body:applyLinearImpulse(-n_x*200, -n_y*200)
+          return
+        else
+          restart = true
+        end
+
+      elseif string.match(a:getUserData(), 'enemy') then
+
+        if player.inventory:hasItem('secret') then
+          player.inventory:removeItem('secret')
+          player.body:applyLinearImpulse(n_x*200, n_y*200)
+          return
+        else
+          restart = true
+        end
+
+      end
+
+    end
+  end
+
+end
+
+
+local function endContact(a, b, coll)
+  -- end contact
+end
+
+local function preSolve(a, b, coll)
+
+end
+
+local function postSolve(a, b, coll, normalimpulse, tangentimpulse)
+-- we won't do anything with this function
+end
+
 -- changes the level for level n
 function setLevel(n)
+  if n == 0 then
+    player_inventory = Inventory()
+  end
+
   list_triggers = {}
   list_exit_points = {}
   list_enemySpawner = {}
@@ -391,6 +451,7 @@ function setLevel(n)
   if map ~= nil then
     -- Prepare physics world
     world = love.physics.newWorld(0, 0)
+    world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
     -- Prepare collision objects
     map:box2d_init(world)

@@ -1,7 +1,7 @@
 local Character = {}
 local anim8         = requireLibrary("anim8")
 
-function Character.init(type,image,x,y, physicWorld ,animTime)
+function Character.init(name,type,image,x,y, physicWorld ,animTime)
     local chara = {}
     chara.type = type
     chara.pos = { x = x, y = y }
@@ -14,6 +14,7 @@ function Character.init(type,image,x,y, physicWorld ,animTime)
       chara.body:setFixedRotation(true)
       chara.shape   = love.physics.newCircleShape(chara.pxw/2, chara.pxh/2, 6)
       chara.fixture = love.physics.newFixture(chara.body, chara.shape)
+      chara.fixture:setUserData(name) 
     end
 
 
