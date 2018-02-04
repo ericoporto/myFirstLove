@@ -21,11 +21,21 @@ local opacity_step_out
 local opacityTweenFadout
 local change_scene_once
 local cutscene_active 
+local delay
 
 local only_once
 local function doOnlyOnce(fn)
   if only_once ~= true then
     only_once = true
+    fn()
+  end
+end
+
+
+local only_once2
+local function doOnlyOnce2(fn)
+  if only_once2 ~= true then
+    only_once2 = true
     fn()
   end
 end
@@ -49,14 +59,16 @@ end
 
 function SplashScreen:enter()
   only_once = false
+  only_once2 = false
   is_accept_enable = false
   cutscene_active = true
   opacityTween = 0
-  opacity_step = 3
+  opacity_step = 2
   opacity_step_out = 8
   change_scene_once = true
   opacityTweenFadout = 255
-  Sfx.Vaca_Load:play()
+  delay = 0
+  --Sfx.Vaca_Load:play()
 end
 
 function SplashScreen:update(dt)
@@ -67,8 +79,31 @@ function SplashScreen:update(dt)
     goToGameState('StartScreen')
   end
 
+  delay= delay+ 1
+
+  if delay < 24 then
+    return
+  end
+
+
+  doOnlyOnce2(function()
+    Sfx.Vaca_Load:play()
+  end)
 
   if opacityTween<256-opacity_step then
+    if opacityTween > 32 and opacityTween < 32 + 1+opacity_step then
+      opacityTween = opacityTween + 24
+    end
+
+    if opacityTween > 64 and opacityTween < 64 + 1+opacity_step then
+      opacityTween = opacityTween + 24
+    end
+
+
+    if opacityTween > 128 and opacityTween < 128 + 1+opacity_step then
+      opacityTween = opacityTween + 24
+    end
+
     opacityTween = opacityTween + opacity_step
   else 
     doOnlyOnce(function()
@@ -76,8 +111,14 @@ function SplashScreen:update(dt)
     end)
 
     if opacityTweenFadout>0+opacity_step_out then
-      if opacityTweenFadout < 125 then
+      if opacityTweenFadout < 120 then
         opacity_step_out = 3
+      end
+      if opacityTweenFadout < 32 then
+        opacity_step_out = 2
+      end
+      if opacityTweenFadout < 18 then
+        opacity_step_out = 1
       end
       opacityTweenFadout = opacityTweenFadout - opacity_step_out
     else 

@@ -481,6 +481,10 @@ function setLevel(n)
     
   if map ~= nil then
     -- Prepare physics world
+    if world ~= nil then 
+      world:destroy( )
+    end
+
     world = love.physics.newWorld(0, 0)
     world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
