@@ -47,6 +47,14 @@ ScreenMsg = Class{
     return self.msg ~= nil and string.len(self.msg)>1
   end,
 
+  hasMsgFinished = function(self)
+    if self.hasMsg(self) and self.currentCharIndex == #self.msg then
+      return true
+    else
+      return false
+    end
+  end,
+
   skipMessage = function(self)
     if self:hasMsg() then
       if self.currentCharIndex < #self.msg then

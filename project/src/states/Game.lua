@@ -62,6 +62,7 @@ local list_enemySpawner = {}
 local sprite_list = {}
 
 local agent_ray_of_seeing = 160
+local counter_hack_for_step_sound = 0
 
 -- Prevents the player from skipping too much by disabling the 
 -- Accept button after it's checked
@@ -77,7 +78,18 @@ local function f_isAcceptPressed()
     Timer.after(0.2, function()
       is_accept_enable = true
     end)
-    return true
+
+    -- we should just return true, but we are adding sugar to
+    -- make msgs skip the typewriter drawing if the player mashes
+    -- the accept button
+    if onScreenDialog:hasMsg() and onScreenDialog:hasMsgFinished() then
+      return true
+    elseif onScreenDialog:hasMsg() then
+      onScreenDialog:skipMessage()
+      return false
+    else
+      return true
+    end
   else
     return false
   end
@@ -239,6 +251,7 @@ local function runLuaScriptInChain(scriptAsString)
     timedSay = Action.timedSay,
     closeSay = Action.closeSay,
     EndGame = Action.EndGame,
+    playSound = Action.playSound,
     waitAccept = waitAccept,
     SpawnEnemy = Action.SpawnEnemy,
     locale = game_locale,
@@ -260,6 +273,7 @@ local function runLuaScript(scriptAsString)
     closeSay = onScreenDialog.setMsg,
     Say = onScreenDialog.setMsg,
     after = Timer.after,
+    Sfx = Sfx,
     SpawnEnemy = Action.SpawnEnemy,
     locale = game_locale,
   }
@@ -360,6 +374,10 @@ end
 -- once contact starts, we run this
 local function beginContact(a, b, coll)
   local n_x,n_y = coll:getNormal()
+
+  local collision_sound_name ='GGJ18_bump_0' .. love.math.random(4)
+
+  Sfx[collision_sound_name]:play()
   
   if a:getUserData() ~= nil and b:getUserData() ~= nil then
     if a:getUserData()=='player' and type(b:getUserData()) == 'string' or 
@@ -372,6 +390,7 @@ local function beginContact(a, b, coll)
           player.body:applyLinearImpulse(-n_x*200, -n_y*200)
           return
         else
+          player.inventory:removeAllItem('radio')
           restart = true
         end
 
@@ -382,6 +401,7 @@ local function beginContact(a, b, coll)
           player.body:applyLinearImpulse(n_x*200, n_y*200)
           return
         else
+          player.inventory:removeAllItem('radio')
           restart = true
         end
 
@@ -589,13 +609,15 @@ end
 -- this is the update function
 -- if this state is the current state, it will be called every dt time
 function Game:update(dt)
+  -- Make sure to do this or nothing will work!
+  -- updates Timer, pay attention to use dot instead of collon
+  -- Timer MUST be updated before EVERYTHING or THINGS WILL BREAK
+  Timer.update(dt)
+
   -- update wait for button, this will claim a button if
   -- it's waiting a press
   WaitForButton:update(dt)
 
-  -- Make sure to do this or nothing will work!
-  -- updates Timer, pay attention to use dot instead of collon
-  Timer.update(dt)
 
   -- update the world, for physics
   world:update(dt)
@@ -674,6 +696,12 @@ function Game:update(dt)
   else
     vx = lume.clamp(vx, -140, 140)
     vy = lume.clamp(vy, -140, 140)
+  end
+
+  counter_hack_for_step_sound = counter_hack_for_step_sound + 1
+  if vx>0.4 and vy>0.4 and counter_hack_for_step_sound % 16 == 0 then
+    local step_sound_name ='GGJ18_step_0' .. love.math.random(8)
+      Sfx[step_sound_name]:play()
   end
 
   player.body:setLinearVelocity(vx, vy);
