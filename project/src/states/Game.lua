@@ -292,6 +292,7 @@ local function shotShader()
   shader_shot_factor = shot.factor
 end
 
+local destroy_queue = {}
 
 -- initialize player Character 
 local function initializePlayerCharacter(spawnX,spawnY)
@@ -329,9 +330,17 @@ local function initializePlayerCharacter(spawnX,spawnY)
               sprite_list[k].body:applyLinearImpulse(lume.clamp(sniper_kill_ray^2/(2*(v.pos.x-player.pos.x)),-2000, 2000),
                                                      lume.clamp(sniper_kill_ray^2/(2*(v.pos.y-player.pos.y)),-2000, 2000))
 
+              table.insert(destroy_queue,k)
               -- after 0.3, do kill the agents in Ray
               Timer.after(0.3, function()
-                sprite_list[k] = nil  --actually remove agents from game
+               -- world:DestroyBody(sprite_list[k].body)
+
+                for kk,vv in pairs(destroy_queue) do
+                  sprite_list[destroy_queue[kk]].body:destroy()
+                  sprite_list[destroy_queue[kk]] = nil --actually remove agents from game
+                  destroy_queue[kk] = nil
+                end
+                --sprite_list[k] = nil  
               end)
             
           
