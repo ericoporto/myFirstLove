@@ -47,6 +47,14 @@ ScreenMsg = Class{
     return self.msg ~= nil and string.len(self.msg)>1
   end,
 
+  hasMsgFinished = function(self)
+    if self.hasMsg(self) and self.currentCharIndex == #self.msg then
+      return true
+    else
+      return false
+    end
+  end,
+
   skipMessage = function(self)
     if self:hasMsg() then
       if self.currentCharIndex < #self.msg then
@@ -89,7 +97,7 @@ ScreenMsg = Class{
     else
 
       -- if we have no text, we just hide the dialog
-      self.ui_texto_y  = lume.lerp(self.ui_texto_y , -600, .2)
+      self.ui_texto_y  = lume.lerp(self.ui_texto_y , -600, .05)
       love.graphics.draw(self.bg_img,0,self.ui_texto_y )
     end
   end,

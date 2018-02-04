@@ -49,6 +49,19 @@ Inventory = Class{
     self:removedItemCallback(itemName)
     return self.items[itemName]
   end,
+
+  removeAllItem = function(self, itemName)
+    if(self.items[itemName]==nil) then return end
+
+    if self._allitems[itemName] == nil then
+      self.defineEmptyItem(self,itemName)
+    end
+
+    self.items[itemName] = nil
+
+    self:removedItemCallback(itemName)
+    return self.items[itemName]
+  end,
   
   countItem = function(self, itemName)
     if self.items[itemName] ~= nil then

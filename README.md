@@ -23,7 +23,7 @@ os TO-DOs do projeto para o final
 
 - [ ] adicionar um movimento de patrulha 'anda dois tile, volta dois tile' no agente, tendo ele dois estados, patrulhando e perseguindo.
 
-- [ ] fazer que quando o agente toca o player, aparece alguma mensagem de 'perdeu playboy' e resetar o player na posição inicial do level (acho que é só setLevel(last_level) !!!)
+- [x] fazer que quando o agente toca o player, resetar o player na posição inicial do level (acho que é só setLevel(last_level) !!!)
 
 - [x] adicionar um estado de fim e conectar ele nos créditos
 
@@ -33,7 +33,7 @@ os TO-DOs do projeto para o final
 
 - [ ] adicionar uma camada de tiles e desenhar mais coisas nos mapas.
 
-- [ ] melhorar função de diálogo pra escrever letra a letra (efeito maquina de escrever)
+- [x] melhorar função de diálogo pra escrever letra a letra (efeito maquina de escrever)
 
 - [x] tocar efeitos ao escrever texto na tela
 

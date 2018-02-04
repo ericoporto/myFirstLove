@@ -143,6 +143,8 @@ function goToGameState(stateString)
     Gamestate.switch(StartScreen)
   elseif stateString=='CreditsState' then
     Gamestate.switch(CreditsState)
+  elseif stateString=='SplashScreen' then
+    Gamestate.switch(SplashScreen)
   end
 
 end
@@ -210,7 +212,7 @@ function love.load(arg)
     -- print "Require Sources:"
 	recursiveRequire("src")
 	Gamestate.registerEvents()
-  Gamestate.switch(StartScreen)
+  Gamestate.switch(SplashScreen)
   
   -- set locale
   game_locale = 'en'

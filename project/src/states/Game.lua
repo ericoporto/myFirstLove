@@ -15,6 +15,8 @@ local Inventory     = require 'src.entities.Inventory'
 local ScreenMsg     = require 'src.entities.ScreenMsg'
 local lume          = requireLibrary("lume")
 local WaitForButton = requireLibrary("waitforbutton")
+local Json_format = requireLibrary("json_format")
+
 
 -- the level map to be loaded with sti
 local map  
@@ -38,6 +40,7 @@ local cnv
 
 -- a variable to hold player character information
 local player
+local player_inventory
 
 -- game camera
 local camera
@@ -59,6 +62,7 @@ local list_enemySpawner = {}
 local sprite_list = {}
 
 local agent_ray_of_seeing = 160
+local counter_hack_for_step_sound = 0
 
 -- Prevents the player from skipping too much by disabling the 
 -- Accept button after it's checked
@@ -74,7 +78,18 @@ local function f_isAcceptPressed()
     Timer.after(0.2, function()
       is_accept_enable = true
     end)
-    return true
+
+    -- we should just return true, but we are adding sugar to
+    -- make msgs skip the typewriter drawing if the player mashes
+    -- the accept button
+    if onScreenDialog:hasMsg() and onScreenDialog:hasMsgFinished() then
+      return true
+    elseif onScreenDialog:hasMsg() then
+      onScreenDialog:skipMessage()
+      return false
+    else
+      return true
+    end
   else
     return false
   end
@@ -87,10 +102,10 @@ end
 
 
 -- initialize an enemy character
-local function initializeEnemyCharacter(spawnX,spawnY,enemyId)
+local function initializeEnemyCharacter(name, spawnX,spawnY,enemyId)
   enemyId = tonumber(enemyId )
   -- table.insert(list_enemySpawner,object)
-  local enemy = Character.init('enemy','img/chara_agent.png',spawnX,spawnY,world)
+  local enemy = Character.init(name,'enemy','img/chara_agent.png',spawnX,spawnY,world)
   enemy.id = enemyId
   enemy.active = true
 
@@ -202,12 +217,13 @@ end
 -- place an enemy on a spawn point by ID
 function Action.SpawnEnemy (placeId)
   return function (go)
-      
+      local icount = 1
       -- let's look all map objects
       for k, object in pairs(map.objects) do
         -- let's place enemys where required
         if object ~= nil and  object.name == "ennemySpawner" and tonumber(object.properties.id) == tonumber(placeId) then
-          initializeEnemyCharacter(object.x,object.y,tonumber(placeId))
+          initializeEnemyCharacter('enemy_' .. object.properties.id .. '_' .. icount,object.x,object.y,tonumber(placeId))
+          icount=icount+1
         end
       end
 
@@ -235,6 +251,7 @@ local function runLuaScriptInChain(scriptAsString)
     timedSay = Action.timedSay,
     closeSay = Action.closeSay,
     EndGame = Action.EndGame,
+    playSound = Action.playSound,
     waitAccept = waitAccept,
     SpawnEnemy = Action.SpawnEnemy,
     locale = game_locale,
@@ -256,6 +273,7 @@ local function runLuaScript(scriptAsString)
     closeSay = onScreenDialog.setMsg,
     Say = onScreenDialog.setMsg,
     after = Timer.after,
+    Sfx = Sfx,
     SpawnEnemy = Action.SpawnEnemy,
     locale = game_locale,
   }
@@ -276,8 +294,8 @@ end
 
 -- initialize player Character 
 local function initializePlayerCharacter(spawnX,spawnY)
-  local player = Character.init('player','img/chara_player.png',spawnX,spawnY,world)
-  player.inventory = Inventory()
+  local player = Character.init('player','player','img/chara_player.png',spawnX,spawnY,world)
+  player.inventory = player_inventory
 
   -- let's define how the items in this game works!
   player.inventory:defineItem('radio',
@@ -321,12 +339,22 @@ local function initializePlayerCharacter(spawnX,spawnY)
     end
   end)
 
+  player.inventory:defineItem('secret',
+  -- draw function
+  function(self)
+    for secret_i =1, self.count() do
+      love.graphics.draw(Image.suitcase_ui_icon,secret_i*(Image.suitcase_ui_icon:getWidth()+2),GAME_HEIGHT - 6 - Image.suitcase_ui_icon:getHeight() )
+    end
+  end)
+
   -- a callback function for when an item is added, we can use this 
   -- for sound effect and triggering drawing effects
   player.inventory.addedItemCallback = function(self,itemName)
     -- an item was added!
     if itemName=='radio' then
       Sfx.GGJ18_walkie_talkie:play()
+    elseif itemName=='secret' then
+      Sfx.Kenney_bookClose:play()
     end
 
     if debug_mode then 
@@ -341,8 +369,68 @@ local function initializePlayerCharacter(spawnX,spawnY)
   return player
 end
 
+-- functions for dealing with collision
+
+-- once contact starts, we run this
+local function beginContact(a, b, coll)
+  local n_x,n_y = coll:getNormal()
+
+  local collision_sound_name ='GGJ18_bump_0' .. love.math.random(4)
+
+  Sfx[collision_sound_name]:play()
+  
+  if a:getUserData() ~= nil and b:getUserData() ~= nil then
+    if a:getUserData()=='player' and type(b:getUserData()) == 'string' or 
+       type(a:getUserData())=='string' and b:getUserData()=='player' then
+
+      if string.match(b:getUserData(), 'enemy') then 
+        
+        if player.inventory:hasItem('secret') then
+          player.inventory:removeItem('secret')
+          player.body:applyLinearImpulse(-n_x*200, -n_y*200)
+          return
+        else
+          player.inventory:removeAllItem('radio')
+          restart = true
+        end
+
+      elseif string.match(a:getUserData(), 'enemy') then
+
+        if player.inventory:hasItem('secret') then
+          player.inventory:removeItem('secret')
+          player.body:applyLinearImpulse(n_x*200, n_y*200)
+          return
+        else
+          player.inventory:removeAllItem('radio')
+          restart = true
+        end
+
+      end
+
+    end
+  end
+
+end
+
+
+local function endContact(a, b, coll)
+  -- end contact
+end
+
+local function preSolve(a, b, coll)
+
+end
+
+local function postSolve(a, b, coll, normalimpulse, tangentimpulse)
+-- we won't do anything with this function
+end
+
 -- changes the level for level n
 function setLevel(n)
+  if n == 0 then
+    player_inventory = Inventory()
+  end
+
   list_triggers = {}
   list_exit_points = {}
   list_enemySpawner = {}
@@ -383,6 +471,7 @@ function setLevel(n)
   if map ~= nil then
     -- Prepare physics world
     world = love.physics.newWorld(0, 0)
+    world:setCallbacks(beginContact, endContact, preSolve, postSolve)
 
     -- Prepare collision objects
     map:box2d_init(world)
@@ -472,8 +561,15 @@ function setLevel(n)
       -- let's look if item's should be placed in map
       if object ~= nil and  object.name == "itemSpawner" then
         if object.properties.item == 'radio' then
+
           local radio = Item.init('radio','img/chara_radio.png',object.x,object.y)
           table.insert(sprite_list,radio)
+          object = nil 
+          map.objects[k] = nil
+        elseif object.properties.item == 'secret' then
+
+          local secret = Item.init('secret','img/chara_suitcase.png',object.x,object.y)
+          table.insert(sprite_list,secret)
           object = nil 
           map.objects[k] = nil
         end
@@ -513,13 +609,15 @@ end
 -- this is the update function
 -- if this state is the current state, it will be called every dt time
 function Game:update(dt)
+  -- Make sure to do this or nothing will work!
+  -- updates Timer, pay attention to use dot instead of collon
+  -- Timer MUST be updated before EVERYTHING or THINGS WILL BREAK
+  Timer.update(dt)
+
   -- update wait for button, this will claim a button if
   -- it's waiting a press
   WaitForButton:update(dt)
 
-  -- Make sure to do this or nothing will work!
-  -- updates Timer, pay attention to use dot instead of collon
-  Timer.update(dt)
 
   -- update the world, for physics
   world:update(dt)
@@ -600,6 +698,12 @@ function Game:update(dt)
     vy = lume.clamp(vy, -140, 140)
   end
 
+  counter_hack_for_step_sound = counter_hack_for_step_sound + 1
+  if vx>0.4 and vy>0.4 and counter_hack_for_step_sound % 16 == 0 then
+    local step_sound_name ='GGJ18_step_0' .. love.math.random(8)
+      Sfx[step_sound_name]:play()
+  end
+
   player.body:setLinearVelocity(vx, vy);
 
 	-- player.body:applyForce(force_x, force_y)
@@ -625,20 +729,22 @@ function Game:update(dt)
 
   -- lets check collision with items
   for k, object in pairs(sprite_list) do
-    if object ~= nil and object.type == 'radio' then
+    if object ~= nil  and 
+    object.pos.x >= player.pos.x - player.pxw/2 and
+    object.pos.x <= player.pos.x + player.pxw/2 and 
+    object.pos.y >= player.pos.y - player.pxh/2 and
+    object.pos.y <= player.pos.y + player.pxh/2 then
+      if object.type == 'radio' then
 
-      if object.pos.x >= player.pos.x - player.pxw/2 and
-        object.pos.x <= player.pos.x + player.pxw/2 and 
-        object.pos.y >= player.pos.y - player.pxh/2 and
-        object.pos.y <= player.pos.y + player.pxh/2 then
-
-          player.inventory:addItem('radio')
-
+        player.inventory:addItem('radio')
         object = nil
         sprite_list[k] = nil
 
-        -- this is where we need to add the item radio to the inventory
-        --goToGameState('Cutscene')
+      elseif object.type == 'secret' then
+
+        player.inventory:addItem('secret')
+        object = nil
+        sprite_list[k] = nil
 
       end 
     end 
